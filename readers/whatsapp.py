@@ -105,9 +105,10 @@ class WhatsAppLogReader:
 
             if current is not None:
                 current.message += '\n' + line # append to unfinished quote
+                current.raw += '\n' + line
                 continue
 
-            print('Unknown %s' % line.rstrip())
+            print('Unknown %s' % line)
 
         if current is not None:
             yield current
@@ -118,11 +119,12 @@ class WhatsAppLogReader:
         timestamp = self.parse_timestamp(groups[0], groups[1])
         author = groups[2]
         message = groups[3] if len(groups) >= 4 else ''
+        raw = match.string
 
         if author == 'You' or author == 'you':
             author = self.you
 
-        return Quote(self.channel, sequence_id, author, message, timestamp, quote_type, self.source)
+        return Quote(self.channel, sequence_id, author, message, timestamp, quote_type, self.source, raw)
 
     def parse_timestamp(self, date_part, time_part):
         '''Parse timestamp from a date part and a time part of varying formatting'''

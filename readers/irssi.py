@@ -38,7 +38,7 @@ class IrssiLogReader:
     invite2_re = re.compile(r'^(\d{2}):(\d{2}) .+ \*\*\* (.+) (invited .+ into the channel)$')
 
     '''ChanServ notices'''
-    chanserv_re = re.compile(r'^(\d{2}):(\d{2}) -ChanServ:.+- (.+)$')
+    chanserv_re = re.compile(r'^(\d{2}):(\d{2}) -(ChanServ):.+- (.+)$')
 
     '''Some sort of channel notice from a real user. Match after chanserv_re because it's less specific'''
     chan_message_re = re.compile(r'^(\d{2}):(\d{2}) -(.+):.+- (.*)$')
@@ -59,6 +59,7 @@ class IrssiLogReader:
         date = datetime.utcfromtimestamp(0)
 
         for line in iterable:
+            line = line.rstrip('\r\n')
             match = self.message_re.match(line)
             if match is not None:
                 yield self.make_quote(match, date, sequence_id, QuoteType.message)
@@ -176,7 +177,7 @@ class IrssiLogReader:
                 date = parse_date(match)
                 continue
 
-            print('Unknown %s' % line.rstrip())
+            print('Unknown %s' % line)
 
     def make_quote(self, match, date, sequence_id, quote_type, is_you=False):
         '''Make a quote from a line'''
@@ -185,11 +186,12 @@ class IrssiLogReader:
         minutes = int(groups[1])
         author = self.you if is_you else groups[2]
         message = groups[3] if len(groups) >= 4 else ''
+        raw = match.string
 
         local_dt = datetime(date.year, date.month, date.day, hours, minutes, 0, tzinfo=self.tzinfo)
         timestamp = local_dt.astimezone(timezone.utc)
 
-        return Quote(self.channel, sequence_id, author, message, timestamp, quote_type, self.source)
+        return Quote(self.channel, sequence_id, author, message, timestamp, quote_type, self.source, raw)
 
 def parse_date(match):
     '''Parse a date for when the date changes. We just use some of its parts, so it can be naive'''

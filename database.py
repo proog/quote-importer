@@ -23,15 +23,16 @@ class Database:
 
     def insert_all(self, quotes, chunk_size=10000):
         '''Insert all given quotes in chunks'''
-        sql = '''INSERT INTO quotes (author, channel, message, sequence_id, source, timestamp, type)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)'''
+        sql = '''INSERT INTO quotes
+            (author, channel, message, sequence_id, source, timestamp, type, raw)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor = self.cnx.cursor()
         chunked_quotes = chunk(quotes, chunk_size)
         count = 0
 
         for q_chunk in chunked_quotes:
             data = [(x.author, x.channel, x.message, x.sequence_id,
-                     x.source, x.timestamp, x.quote_type) for x in q_chunk]
+                     x.source, x.timestamp, x.quote_type, x.raw) for x in q_chunk]
             cursor.executemany(sql, data)
             count += len(q_chunk)
             print('Inserted %i' % count)
@@ -51,6 +52,7 @@ class Database:
                 `timestamp` datetime(6) NOT NULL,
                 `source` longtext DEFAULT NULL,
                 `type` varchar(127) NOT NULL,
+                `raw` longtext DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `IX_quotes_channel_sequence_id` (`channel`,`sequence_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'''

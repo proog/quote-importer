@@ -15,7 +15,7 @@ def main():
     utc_offset = args.offset
     source = os.path.basename(filename)
 
-    database = Database(host='127.0.0.1', user='root', database='stuff4')
+    database = Database(host='127.0.0.1', user='root', database='stuff')
     database.create_table()
 
     start_sequence_id = database.max_sequence_id(channel) + 1
