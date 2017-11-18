@@ -24,7 +24,7 @@ def main():
     stream = open(filename)
 
     if log_type == 'irssi':
-        reader = IrssiLogReader(channel, start_sequence_id, utc_offset, source)
+        reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
         quotes = list(reader.read(stream))
     elif log_type == 'whatsapp':
         date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
