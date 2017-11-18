@@ -12,7 +12,8 @@ def main():
     log_type = args.type
     channel = args.channel
     filename = args.filename
-    utc_offset = args.offset
+    utc_offset = args.utc_offset
+    skip_lines = args.skip_lines
     source = os.path.basename(filename)
 
     database = Database(host='127.0.0.1', user='root', database='stuff')
@@ -25,11 +26,11 @@ def main():
 
     if log_type == 'irssi':
         reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
-        quotes = list(reader.read(stream))
+        quotes = list(reader.read(stream, skip_lines))
     elif log_type == 'whatsapp':
         date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
         reader = WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
-        quotes = list(reader.read(stream))
+        quotes = list(reader.read(stream, skip_lines))
 
     print('Read %i messages' % count(quotes, QuoteType.message))
     print('Read %i subject changes' % count(quotes, QuoteType.subject))
@@ -51,9 +52,10 @@ def count(quotes, quote_type):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--offset', type=int, default=0)
+    parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
+    parser.add_argument('--skip-lines', type=int, default=0)
     parser.add_argument('type', choices=['irssi', 'whatsapp'])
     parser.add_argument('channel')
     parser.add_argument('filename')

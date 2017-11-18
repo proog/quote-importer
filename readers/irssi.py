@@ -53,12 +53,17 @@ class IrssiLogReader:
         self.you = you
         self.source = source
 
-    def read(self, iterable):
+    def read(self, iterable, skip=0):
         '''Transform lines from iterable into quotes'''
         sequence_id = self.start_sequence_id
         date = datetime.utcfromtimestamp(0)
+        skipped = 0
 
         for line in iterable:
+            if skipped < skip:
+                skipped += 1
+                continue
+
             line = line.rstrip('\r\n')
             match = self.message_re.match(line)
             if match is not None:

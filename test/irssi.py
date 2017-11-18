@@ -65,3 +65,12 @@ class TestIrssiLogReader(unittest.TestCase):
         self.assertEqual(quote.quote_type, QuoteType.message)
         self.assertEqual(quote.author, '&Cassie')
         self.assertEqual(quote.message, 'what the fuck')
+
+    def test_skip(self):
+        lines = io.StringIO('20:56 <&Cassie> what the fuck\n' +
+                            '20:56 -!- Duo is now known as udo\n' +
+                            '20:58 <&ashin> also swear words')
+        reader = IrssiLogReader('', 0, 0, '')
+        quotes = list(reader.read(lines, 2))
+        self.assertEqual(len(quotes), 1)
+        self.assertEqual(quotes[0].message, 'also swear words')

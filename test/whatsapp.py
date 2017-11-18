@@ -130,3 +130,13 @@ class TestWhatsAppLogReader(unittest.TestCase):
             reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, 'Cassie')
             quote = next(reader.read(lines))
             self.assertEqual(quote.author, 'Cassie')
+
+    def test_skip(self):
+        lines = io.StringIO('31/05/2017, 20:56:32 - Cassie: what the fuck\n' +
+                            '01/06/2017, 13:24:01 - Matt: also swear words\n' +
+                            'and another line\n' +
+                            '01/06/2017, 13:24:01 - Matt: something else')
+        reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+        quotes = list(reader.read(lines, 3))
+        self.assertEqual(len(quotes), 1)
+        self.assertEqual(quotes[0].message, 'something else')
