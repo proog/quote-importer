@@ -40,11 +40,12 @@ class WhatsAppLogReader:
         skipped = 0
 
         for line in iterable:
+            line = line.rstrip('\r\n')
+
             if skipped < skip:
                 skipped += 1
                 continue
 
-            line = line.rstrip('\r\n')
             match = self.message_re.match(line)
             if match is not None:
                 if current is not None:

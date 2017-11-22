@@ -1,6 +1,5 @@
 .vscode/
 __pycache__/
-gclogs/
+logs/
 import.sh
-walogs/
 *.pyc

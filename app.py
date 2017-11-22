@@ -5,6 +5,7 @@ from models import QuoteType
 from database import Database
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
+from readers.nda import NdaLogReader
 
 def main():
     '''Entry point for the application'''
@@ -31,6 +32,9 @@ def main():
         date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
         reader = WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
         quotes = list(reader.read(stream, skip_lines))
+    elif log_type == 'nda':
+        reader = NdaLogReader(channel, start_sequence_id, args.you, source)
+        quotes = list(reader.read(stream, skip_lines))
 
     print('Read %i messages' % count(quotes, QuoteType.message))
     print('Read %i subject changes' % count(quotes, QuoteType.subject))
@@ -56,7 +60,7 @@ def parse_args():
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
     parser.add_argument('--skip-lines', type=int, default=0)
-    parser.add_argument('type', choices=['irssi', 'whatsapp'])
+    parser.add_argument('type', choices=['irssi', 'whatsapp', 'nda'])
     parser.add_argument('channel')
     parser.add_argument('filename')
     return parser.parse_args()
