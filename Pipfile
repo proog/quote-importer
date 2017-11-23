@@ -12,6 +12,7 @@ mysql-connector-python-rf = "*"
 
 [dev-packages]
 
+pytest = "*"
 
 
 [requires]
