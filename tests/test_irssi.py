@@ -41,6 +41,14 @@ def test_join():
     assert quote.author == 'anyname'
     assert quote.message == ''
 
+def test_leave():
+    lines = io.StringIO('20:56 -!- anyname [anyname!something] has left #chan [bye]')
+    reader = IrssiLogReader('', 0, 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.leave
+    assert quote.author == 'anyname'
+    assert quote.message == 'bye'
+
 def test_kick():
     lines = io.StringIO('20:56 -!- anyname was kicked from #chan by ashin [fuck off]')
     reader = IrssiLogReader('', 0, 0, '')
