@@ -17,7 +17,7 @@ class SqliteDb:
         return seq_id if seq_id is not None else 0
 
     def insert_all(self, quotes):
-        '''Insert all given quotes in chunks'''
+        '''Insert all given quotes'''
         sql = '''INSERT INTO quotes
             (author, channel, message, sequence_id, source, timestamp, type, raw)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
@@ -31,7 +31,7 @@ class SqliteDb:
         self.cnx.commit()
         cursor.close()
 
-    def create_table(self):
+    def initialize(self):
         '''Create quotes table if it doesn't already exist'''
         sql_table = '''
             CREATE TABLE IF NOT EXISTS `quotes` (

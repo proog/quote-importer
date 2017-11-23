@@ -40,7 +40,7 @@ class MySqlDb:
         self.cnx.commit()
         cursor.close()
 
-    def create_table(self):
+    def initialize(self):
         '''Create quotes table if it doesn't already exist'''
         sql = '''
             CREATE TABLE IF NOT EXISTS `quotes` (

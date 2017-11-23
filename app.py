@@ -4,6 +4,7 @@ import os.path
 from models import QuoteType
 from writers.mysql import MySqlDb
 from writers.sqlite import SqliteDb
+from writers.jsonfile import JsonFile
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from readers.nda import NdaLogReader
@@ -19,12 +20,14 @@ def main():
     source = os.path.basename(filename)
 
     if args.database == 'mysql':
-        database = MySqlDb(host='127.0.0.1', user='root', database='stuff')
+        writer = MySqlDb(host='127.0.0.1', user='root', database='stuff')
+    elif args.database == 'json':
+        writer = JsonFile('stuff.json')
     else:
-        database = SqliteDb('stuff.db')
+        writer = SqliteDb('stuff.db')
 
-    database.create_table()
-    start_sequence_id = database.max_sequence_id(channel) + 1
+    writer.initialize()
+    start_sequence_id = writer.max_sequence_id(channel) + 1
     print('Starting at sequence id %i for %s' % (start_sequence_id, channel))
 
     stream = open(filename)
@@ -50,8 +53,8 @@ def main():
     print('Read %i system notices' % count(quotes, QuoteType.system))
     print('Read %i total' % len(quotes))
 
-    database.insert_all(quotes)
-    database.close()
+    writer.insert_all(quotes)
+    writer.close()
 
 def count(quotes, quote_type):
     '''Counts the number of quotes of a given type'''
@@ -60,7 +63,7 @@ def count(quotes, quote_type):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--database', choices=['sqlite', 'mysql'], default='sqlite')
+    parser.add_argument('--database', choices=['sqlite', 'mysql', 'json'], default='sqlite')
     parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
