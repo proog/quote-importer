@@ -2,7 +2,8 @@
 import argparse
 import os.path
 from models import QuoteType
-from database import Database
+from writers.mysql import MySqlDb
+from writers.sqlite import SqliteDb
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from readers.nda import NdaLogReader
@@ -17,9 +18,12 @@ def main():
     skip_lines = args.skip_lines
     source = os.path.basename(filename)
 
-    database = Database(host='127.0.0.1', user='root', database='stuff')
-    database.create_table()
+    if args.database == 'mysql':
+        database = MySqlDb(host='127.0.0.1', user='root', database='stuff')
+    else:
+        database = SqliteDb('stuff.db')
 
+    database.create_table()
     start_sequence_id = database.max_sequence_id(channel) + 1
     print('Starting at sequence id %i for %s' % (start_sequence_id, channel))
 
@@ -56,6 +60,7 @@ def count(quotes, quote_type):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
+    parser.add_argument('--database', choices=['sqlite', 'mysql'], default='sqlite')
     parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')

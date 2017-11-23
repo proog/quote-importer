@@ -1,8 +1,8 @@
 '''Read and write quotes to the database'''
 import mysql.connector
 
-class Database:
-    '''Wrap database access'''
+class MySqlDb:
+    '''Wrap MySQL database access'''
 
     def __init__(self, *args, **kwargs):
         self.cnx = mysql.connector.connect(*args, **kwargs)
@@ -21,13 +21,13 @@ class Database:
         cursor.close()
         return seq_id if seq_id is not None else 0
 
-    def insert_all(self, quotes, chunk_size=10000):
+    def insert_all(self, quotes):
         '''Insert all given quotes in chunks'''
         sql = '''INSERT INTO quotes
             (author, channel, message, sequence_id, source, timestamp, type, raw)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor = self.cnx.cursor()
-        chunked_quotes = chunk(quotes, chunk_size)
+        chunked_quotes = chunk(quotes, 10000)
         count = 0
 
         for q_chunk in chunked_quotes:
