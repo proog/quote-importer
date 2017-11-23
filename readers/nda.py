@@ -7,7 +7,7 @@ class NdaLogReader:
     '''Read an NDA log file'''
 
     message_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ PRIVMSG (.+) :(.*)$')
-    join_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ JOIN .+$')
+    join_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ JOIN (.+)$')
     leave_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ PART (.+)( :(.*))?$')
     quit_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ QUIT :(.*)$')
     kick_re = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{6} :(.+)!.+ KICK (.+) (.+) :.+$')
@@ -45,7 +45,11 @@ class NdaLogReader:
     ]
     ignored_re = re.compile('(' + ')|('.join(ignored) + ')')
 
-    def __init__(self, channel, start_sequence_id, you, source='nda'):
+    def __init__(self, channel, start_sequence_id, you='nda', source='nda'):
+        '''
+        In this reader, the you parameter is only used as the initial value for nda's own nick,
+        until it changes due to a line matched by nda_nick_re
+        '''
         self.channel = channel
         self.start_sequence_id = start_sequence_id
         self.you = you
@@ -54,6 +58,7 @@ class NdaLogReader:
     def read(self, iterable, skip=0):
         '''Transform lines from iterable into quotes'''
         sequence_id = self.start_sequence_id
+        nda_nick = self.you
         skipped = 0
 
         for line in iterable:
@@ -73,8 +78,9 @@ class NdaLogReader:
 
             match = self.join_re.match(line)
             if match is not None:
-                yield self.make_quote(match.group(1), match.group(2), '', sequence_id, QuoteType.join, line)
-                sequence_id += 1
+                if match.group(3) == self.channel:
+                    yield self.make_quote(match.group(1), match.group(2), '', sequence_id, QuoteType.join, line)
+                    sequence_id += 1
                 continue
 
             match = self.leave_re.match(line)
@@ -127,19 +133,20 @@ class NdaLogReader:
             match = self.nda_message_re.match(line)
             if match is not None:
                 if match.group(3) == self.channel:
-                    yield self.make_quote(match.group(1), self.you, match.group(2), sequence_id, QuoteType.message, line)
+                    yield self.make_quote(match.group(1), nda_nick, match.group(2), sequence_id, QuoteType.message, line)
                     sequence_id += 1
                 continue
 
             match = self.nda_nick_re.match(line)
             if match is not None:
-                yield self.make_quote(match.group(1), self.you, match.group(2), sequence_id, QuoteType.nick, line)
+                yield self.make_quote(match.group(1), nda_nick, match.group(2), sequence_id, QuoteType.nick, line)
                 sequence_id += 1
+                nda_nick = match.group(2)
                 continue
 
             match = self.nda_quit_re.match(line)
             if match is not None:
-                yield self.make_quote(match.group(1), self.you, match.group(2), sequence_id, QuoteType.leave, line)
+                yield self.make_quote(match.group(1), nda_nick, match.group(2), sequence_id, QuoteType.leave, line)
                 sequence_id += 1
                 continue
 

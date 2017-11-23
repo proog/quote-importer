@@ -1,4 +1,5 @@
 import io
+import pytest
 from readers.nda import NdaLogReader
 from models import QuoteType
 
@@ -41,3 +42,50 @@ def test_nda_message_for_different_channel():
     reader = NdaLogReader('#notchan', 0, '')
     quotes = list(reader.read(lines))
     assert not quotes
+
+def test_join():
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com JOIN #chan')
+    reader = NdaLogReader('#chan', 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.join
+    assert quote.author == 'Cassie'
+
+def test_join_different_channel():
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com JOIN #chan')
+    reader = NdaLogReader('#notchan', 0, '')
+    assert not list(reader.read(lines))
+
+def test_nda_nick():
+    lines = io.StringIO(
+        '2017-07-22 20:56:39.123456 Sending hi to #chan\n' +
+        '2017-07-22 20:56:39.123456 Sending NICK nda_\n' +
+        '2017-07-22 20:56:39.123456 Sending hi 2 to #chan')
+    reader = NdaLogReader('#chan', 0, 'nda')
+    quotes = list(reader.read(lines))
+    assert len(quotes) == 3
+    assert quotes[0].quote_type == QuoteType.message
+    assert quotes[0].author == 'nda'
+    assert quotes[1].quote_type == QuoteType.nick
+    assert quotes[1].author == 'nda'
+    assert quotes[1].message == 'nda_'
+    assert quotes[2].quote_type == QuoteType.message
+    assert quotes[2].author == 'nda_'
+
+@pytest.mark.parametrize('mode, message', [
+    ('+b anyname!*@*', 'anyname'),
+    ('-o+b noskillbassist *!*@*.hsd1.ca.comcast.net', 'noskillbassist'),
+    ('-o+b Calum *!*moo@*.34329884.17AA9C3B.IP', 'Calum'),
+    ('+ic-S+b +v!*@*', '+v')
+])
+def test_ban(mode, message):
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com MODE #chan %s' % mode)
+    reader = NdaLogReader('#chan', 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.ban
+    assert quote.author == 'Cassie'
+    assert quote.message == message
+
+def test_ban_different_channel():
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com MODE #chan +b anyname!*@*')
+    reader = NdaLogReader('#notchan', 0, '')
+    assert not list(reader.read(lines))
