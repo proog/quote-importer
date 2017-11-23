@@ -19,9 +19,9 @@ def main():
     skip_lines = args.skip_lines
     source = os.path.basename(filename)
 
-    if args.database == 'mysql':
+    if args.writer == 'mysql':
         writer = MySqlDb(host='127.0.0.1', user='root', database='stuff')
-    elif args.database == 'json':
+    elif args.writer == 'json':
         writer = JsonFile('stuff.json')
     else:
         writer = SqliteDb('stuff.db')
@@ -63,7 +63,7 @@ def count(quotes, quote_type):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--database', choices=['sqlite', 'mysql', 'json'], default='sqlite')
+    parser.add_argument('--writer', choices=['sqlite', 'mysql', 'json'], default='sqlite')
     parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
