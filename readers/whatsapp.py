@@ -22,8 +22,8 @@ class WhatsAppLogReader:
     icon_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) (changed this group\'s icon)$')
     join_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) .+ added (.+)$')
     leave_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) left$')
-    kick_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) .+ removed (.+)$')
-    system_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) ()(.+)$')
+    kick_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) removed (.+)$')
+    system_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+)$')
 
     def __init__(self, channel, start_sequence_id, utc_offset, date_order, you, source='whatsapp'):
         self.channel = channel
@@ -51,7 +51,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.message)
+                current = self.start_quote(match[1], match[2], match[3], match[4], sequence_id, QuoteType.message, line)
                 sequence_id += 1
                 continue
 
@@ -60,7 +60,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.subject)
+                current = self.start_quote(match[1], match[2], match[3], match[4], sequence_id, QuoteType.subject, line)
                 sequence_id += 1
                 continue
 
@@ -69,7 +69,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.subject)
+                current = self.start_quote(match[1], match[2], match[3], match[4], sequence_id, QuoteType.subject, line)
                 sequence_id += 1
                 continue
 
@@ -78,7 +78,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.join)
+                current = self.start_quote(match[1], match[2], match[3], '', sequence_id, QuoteType.join, line)
                 sequence_id += 1
                 continue
 
@@ -87,7 +87,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.leave)
+                current = self.start_quote(match[1], match[2], match[3], '', sequence_id, QuoteType.leave, line)
                 sequence_id += 1
                 continue
 
@@ -96,7 +96,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.kick)
+                current = self.start_quote(match[1], match[2], match[3], match[4], sequence_id, QuoteType.kick, line)
                 sequence_id += 1
                 continue
 
@@ -105,7 +105,7 @@ class WhatsAppLogReader:
                 if current is not None:
                     yield current
 
-                current = self.start_quote(match, sequence_id, QuoteType.system)
+                current = self.start_quote(match[1], match[2], '', match[3], sequence_id, QuoteType.system, line)
                 sequence_id += 1
                 continue
 
@@ -119,13 +119,9 @@ class WhatsAppLogReader:
         if current is not None:
             yield current
 
-    def start_quote(self, match, sequence_id, quote_type):
+    def start_quote(self, date_str, time_str, author, message, sequence_id, quote_type, raw):
         '''Make a quote from a line. Its message may not be finished on this line'''
-        groups = match.groups()
-        timestamp = self.parse_timestamp(groups[0], groups[1])
-        author = groups[2]
-        message = groups[3] if len(groups) >= 4 else ''
-        raw = match.string
+        timestamp = self.parse_timestamp(date_str, time_str)
 
         if author == 'You' or author == 'you':
             author = self.you

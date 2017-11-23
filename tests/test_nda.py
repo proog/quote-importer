@@ -89,3 +89,16 @@ def test_ban_different_channel():
     lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com MODE #chan +b anyname!*@*')
     reader = NdaLogReader('#notchan', 0, '')
     assert not list(reader.read(lines))
+
+def test_kick():
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com KICK #chan anyname :fuck off')
+    reader = NdaLogReader('#chan', 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.kick
+    assert quote.author == 'Cassie'
+    assert quote.message == 'anyname'
+
+def test_kick_different_channel():
+    lines = io.StringIO('2017-07-22 20:56:39.123456 :Cassie!~abc@sdf.dkf.com KICK #chan anyname :fuck off')
+    reader = NdaLogReader('#notchan', 0, '')
+    assert not list(reader.read(lines))

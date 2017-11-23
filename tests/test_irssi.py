@@ -33,18 +33,27 @@ def test_you_nick():
     assert quote.author == 'Duo'
     assert quote.message == 'udo'
 
-@pytest.mark.parametrize('mode, author', [
+def test_kick():
+    lines = io.StringIO('20:56 -!- anyname was kicked from #chan by ashin [fuck off]')
+    reader = IrssiLogReader('', 0, 0, 'Duo')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.kick
+    assert quote.author == 'ashin'
+    assert quote.message == 'anyname'
+
+@pytest.mark.parametrize('mode, message', [
     ('+b anyname!*@*', 'anyname'),
     ('-o+b noskillbassist *!*@*.hsd1.ca.comcast.net', 'noskillbassist'),
     ('-o+b Calum *!*moo@*.34329884.17AA9C3B.IP', 'Calum'),
     ('+ic-S+b +v!*@*', '+v')
 ])
-def test_ban(mode, author):
+def test_ban(mode, message):
     lines = io.StringIO('20:56 -!- mode/#garachat [%s] by Ebichu' % mode)
     reader = IrssiLogReader('', 0, 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.ban
-    assert quote.author == author
+    assert quote.author == 'Ebichu'
+    assert quote.message == message
 
 def test_message():
     lines = io.StringIO('20:56 <&Cassie> what the fuck')

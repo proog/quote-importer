@@ -130,3 +130,51 @@ def test_skip():
     quotes = list(reader.read(lines, 3))
     assert len(quotes) == 1
     assert quotes[0].message == 'something else'
+
+def test_join():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Cassie added Matt')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.join
+    assert quote.author == 'Matt'
+    assert quote.message == ''
+
+def test_leave():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Matt left')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.leave
+    assert quote.author == 'Matt'
+    assert quote.message == ''
+
+def test_kick():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Cassie removed Matt')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.kick
+    assert quote.author == 'Cassie'
+    assert quote.message == 'Matt'
+
+def test_subject():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Matt changed the subject from "a" to "b"')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.subject
+    assert quote.author == 'Matt'
+    assert quote.message == 'b'
+
+def test_icon():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Matt changed this group\'s icon')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.subject
+    assert quote.author == 'Matt'
+    assert quote.message == 'changed this group\'s icon'
+
+def test_system():
+    lines = io.StringIO('31/05/2017, 20:56:32 - Messages you send to this group are now secured with end-to-end encryption. Tap for more info.')
+    reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.system
+    assert quote.author == ''
+    assert quote.message == 'Messages you send to this group are now secured with end-to-end encryption. Tap for more info.'
