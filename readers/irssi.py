@@ -86,7 +86,7 @@ class IrssiLogReader:
 
             match = self.join_re.match(line)
             if match is not None:
-                yield self.make_quote(date, match.group(1), match.group(2), match.group(3), sequence_id, QuoteType.join, line)
+                yield self.make_quote(date, match.group(1), match.group(2), '', sequence_id, QuoteType.join, line)
                 sequence_id += 1
                 continue
 

@@ -33,9 +33,17 @@ def test_you_nick():
     assert quote.author == 'Duo'
     assert quote.message == 'udo'
 
+def test_join():
+    lines = io.StringIO('20:56 -!- anyname [anyname!something] has joined #chan')
+    reader = IrssiLogReader('', 0, 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.join
+    assert quote.author == 'anyname'
+    assert quote.message == ''
+
 def test_kick():
     lines = io.StringIO('20:56 -!- anyname was kicked from #chan by ashin [fuck off]')
-    reader = IrssiLogReader('', 0, 0, 'Duo')
+    reader = IrssiLogReader('', 0, 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.kick
     assert quote.author == 'ashin'
