@@ -4,3 +4,5 @@ logs/
 import.sh
 *.pyc
 .cache/
+stuff.db
+stuff.json
