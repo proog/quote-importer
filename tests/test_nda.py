@@ -59,10 +59,12 @@ def test_nda_nick():
     lines = io.StringIO(
         '2017-07-22 20:56:39.123456 Sending hi to #chan\n' +
         '2017-07-22 20:56:39.123456 Sending NICK nda_\n' +
-        '2017-07-22 20:56:39.123456 Sending hi 2 to #chan')
+        '2017-07-22 20:56:39.123456 Sending hi 2 to #chan\n' +
+        '2017-07-22 20:56:39.123456 Sending NICK nda_\n' +
+        '2017-07-22 20:56:39.123456 Sending hi 3 to #chan')
     reader = NdaLogReader('#chan', 0, 'nda')
     quotes = list(reader.read(lines))
-    assert len(quotes) == 3
+    assert len(quotes) == 4
     assert quotes[0].quote_type == QuoteType.message
     assert quotes[0].author == 'nda'
     assert quotes[1].quote_type == QuoteType.nick
@@ -70,6 +72,9 @@ def test_nda_nick():
     assert quotes[1].message == 'nda_'
     assert quotes[2].quote_type == QuoteType.message
     assert quotes[2].author == 'nda_'
+    # nda nick didn't change, so no nick type quote here
+    assert quotes[3].quote_type == QuoteType.message
+    assert quotes[3].author == 'nda_'
 
 @pytest.mark.parametrize('mode, message', [
     ('+b anyname!*@*', 'anyname'),

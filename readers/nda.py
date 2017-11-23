@@ -139,9 +139,10 @@ class NdaLogReader:
 
             match = self.nda_nick_re.match(line)
             if match is not None:
-                yield self.make_quote(match.group(1), nda_nick, match.group(2), sequence_id, QuoteType.nick, line)
-                sequence_id += 1
-                nda_nick = match.group(2)
+                if match.group(2) != nda_nick: # don't treat NICK commands on connect as nick changes
+                    yield self.make_quote(match.group(1), nda_nick, match.group(2), sequence_id, QuoteType.nick, line)
+                    sequence_id += 1
+                    nda_nick = match.group(2)
                 continue
 
             match = self.nda_quit_re.match(line)
