@@ -2,8 +2,8 @@
 import argparse
 import os.path
 from models import QuoteType
-from writers.mysql import MySqlDb
-from writers.sqlite import SqliteDb
+from writers.mysqldb import MySqlDb
+from writers.sqlitedb import SqliteDb
 from writers.jsonfile import JsonFile
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
