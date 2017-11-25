@@ -30,18 +30,17 @@ def main():
     start_sequence_id = writer.max_sequence_id(channel) + 1
     print('Starting at sequence id %i for %s' % (start_sequence_id, channel))
 
-    stream = open(filename)
-
-    if log_type == 'irssi':
-        reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
-        quotes = list(reader.read(stream, skip_lines))
-    elif log_type == 'whatsapp':
-        date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
-        reader = WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
-        quotes = list(reader.read(stream, skip_lines))
-    elif log_type == 'nda':
-        reader = NdaLogReader(channel, start_sequence_id, args.you, source)
-        quotes = list(reader.read(stream, skip_lines))
+    with open(filename) as stream:
+        if log_type == 'irssi':
+            reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
+            quotes = list(reader.read(stream, skip_lines))
+        elif log_type == 'whatsapp':
+            date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
+            reader = WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
+            quotes = list(reader.read(stream, skip_lines))
+        elif log_type == 'nda':
+            reader = NdaLogReader(channel, start_sequence_id, args.you, source)
+            quotes = list(reader.read(stream, skip_lines))
 
     print('Read %i messages' % count(quotes, QuoteType.message))
     print('Read %i subject changes' % count(quotes, QuoteType.subject))

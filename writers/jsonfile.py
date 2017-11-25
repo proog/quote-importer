@@ -10,9 +10,8 @@ class JsonFile:
 
     def max_sequence_id(self, channel):
         '''Gets the largest sequence id with the given channel, or 0'''
-        file = open(self.filename)
-        json_quotes = json.load(file)
-        file.close()
+        with open(self.filename) as file:
+            json_quotes = json.load(file)
         max_id = 0
 
         for quote in json_quotes:
@@ -25,9 +24,8 @@ class JsonFile:
 
     def insert_all(self, quotes):
         '''Write all given quotes to the file'''
-        file = open(self.filename)
-        json_quotes = json.load(file)
-        file.close()
+        with open(self.filename) as file:
+            json_quotes = json.load(file)
 
         for quote in quotes:
             json_quote = {
@@ -42,9 +40,9 @@ class JsonFile:
             }
             json_quotes.append(json_quote)
 
-        file = open(self.filename, mode='w')
-        json.dump(json_quotes, file)
-        file.close()
+        with open(self.filename, mode='w') as file:
+            json.dump(json_quotes, file)
+
         print('Inserted %i' % len(quotes))
 
     def initialize(self):
@@ -52,9 +50,8 @@ class JsonFile:
         if os.path.exists(self.filename) and os.path.getsize(self.filename) > 0:
             return
 
-        file = open(self.filename, mode='w')
-        file.write('[]')
-        file.close()
+        with open(self.filename, mode='w') as file:
+            file.write('[]')
 
     def close(self):
         pass
