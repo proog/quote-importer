@@ -30,7 +30,7 @@ def main():
     start_sequence_id = writer.max_sequence_id(channel) + 1
     print('Starting at sequence id %i for %s' % (start_sequence_id, channel))
 
-    with open(filename) as stream:
+    with open(filename, encoding='utf-8', errors='replace') as stream:
         if log_type == 'irssi':
             reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
             quotes = list(reader.read(stream, skip_lines))
