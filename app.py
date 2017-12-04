@@ -5,6 +5,7 @@ from models import QuoteType
 from writers.mysqldb import MySqlDb
 from writers.sqlitedb import SqliteDb
 from writers.jsonfile import JsonFile
+from writers.mongodb import MongoDb
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from readers.nda import NdaLogReader
@@ -23,6 +24,8 @@ def main():
         writer = MySqlDb(host='127.0.0.1', user='root', database='stuff')
     elif args.writer == 'json':
         writer = JsonFile('stuff.json')
+    elif args.writer == 'mongo':
+        writer = MongoDb('localhost', 27017)
     else:
         writer = SqliteDb('stuff.db')
 
@@ -62,7 +65,7 @@ def count(quotes, quote_type):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--writer', choices=['sqlite', 'mysql', 'json'], default='sqlite')
+    parser.add_argument('--writer', choices=['sqlite', 'mysql', 'json', 'mongo'], default='sqlite')
     parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')

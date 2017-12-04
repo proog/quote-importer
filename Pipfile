@@ -8,6 +8,7 @@ name = "pypi"
 [packages]
 
 mysql-connector-python-rf = "*"
+pymongo = "*"
 
 
 [dev-packages]
