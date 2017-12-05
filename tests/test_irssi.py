@@ -71,13 +71,17 @@ def test_ban(mode, message):
     assert quote.author == 'Ebichu'
     assert quote.message == message
 
-def test_message():
-    lines = io.StringIO('20:56 <&Cassie> what the fuck')
+@pytest.mark.parametrize('raw, author, message', [
+    ('20:56 <&Cassie> what the fuck', '&Cassie', 'what the fuck'),
+    ('19:25 < nda> 22:03:08  <garamond>	[20:02] <~garamond> http', ' nda', '22:03:08  <garamond>	[20:02] <~garamond> http')
+])
+def test_message(raw, author, message):
+    lines = io.StringIO(raw)
     reader = IrssiLogReader('', 0, 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.message
-    assert quote.author == '&Cassie'
-    assert quote.message == 'what the fuck'
+    assert quote.author == author
+    assert quote.message == message
 
 def test_message_glitch():
     lines = io.StringIO('20:56 20:56 <&Cassie> what the fuck<&Cassie> what the fuck')
@@ -95,3 +99,15 @@ def test_skip():
     quotes = list(reader.read(lines, 2))
     assert len(quotes) == 1
     assert quotes[0].message == 'also swear words'
+
+@pytest.mark.parametrize('raw, author, message', [
+    ('20:56  * &Cassie what the fuck', '&Cassie', 'what the fuck'),
+    ('19:25  *  nda 22:03:08  <garamond>', ' nda', '22:03:08  <garamond>')
+])
+def test_me(raw, author, message):
+    lines = io.StringIO(raw)
+    reader = IrssiLogReader('', 0, 0, '')
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.message
+    assert quote.author == author
+    assert quote.message == message

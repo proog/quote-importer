@@ -7,10 +7,10 @@ class IrssiLogReader:
     '''Read an irssi log file'''
 
     '''Regular message''' # pylint: disable=W0105
-    message_re = re.compile(r'^(\d{2}:\d{2}) <(.+)> (.*)$')
+    message_re = re.compile(r'^(\d{2}:\d{2}) <(.+?)> (.*)$')
 
     '''Glitched out line with the message interleaved with itself'''
-    message_glitch_re = re.compile(r'^(\d{2}:\d{2}) \d{2}:\d{2} <(.+)> (.*)<.+> .*$')
+    message_glitch_re = re.compile(r'^(\d{2}:\d{2}) \d{2}:\d{2} <(.+?)> (.*)<.+?> .*$')
 
     topic_re = re.compile(r'^(\d{2}:\d{2}) (.+) changed the topic of .+ to: (.*)$')
     log_open_re = re.compile(r'^--- Log opened .{3} (\w{3}) (\d{2}) .{8} (\d{4})$')
@@ -28,7 +28,7 @@ class IrssiLogReader:
     ban2_re = re.compile(r'^(\d{2}:\d{2}) -!- mode\/.+ \[.*\+b\S* (\S+) \S+!.+\] by (.+)$')
 
     '''/me command: "* nick message"'''
-    me_re = re.compile(r'^(\d{2}:\d{2})  \* (.+) (.*)$')
+    me_re = re.compile(r'^(\d{2}:\d{2})  \* (.+?) (.*)$')
 
     nick_re = re.compile(r'^(\d{2}:\d{2}) -!- (.+) is now known as (.+)$')
     you_nick_re = re.compile(r'^(\d{2}:\d{2}) -!- (You)\'re now known as (.+)$')
@@ -38,10 +38,10 @@ class IrssiLogReader:
     invite2_re = re.compile(r'^(\d{2}:\d{2}) .+ \*\*\* (.+) (invited .+ into the channel)$')
 
     '''ChanServ notices'''
-    chanserv_re = re.compile(r'^(\d{2}:\d{2}) -(ChanServ):.+- (.+)$')
+    chanserv_re = re.compile(r'^(\d{2}:\d{2}) -(ChanServ):.+?- (.+)$')
 
     '''Some sort of channel notice from a real user. Match after chanserv_re because it's less specific'''
-    chan_message_re = re.compile(r'^(\d{2}:\d{2}) -(.+):.+- (.*)$')
+    chan_message_re = re.compile(r'^(\d{2}:\d{2}) -(.+?):.+?- (.*)$')
 
     '''Recognizable, but unspecific system messages with a timestamp and no author'''
     system_re = re.compile(r'^(\d{2}:\d{2}) -!- (.*)$')
