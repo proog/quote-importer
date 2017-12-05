@@ -4,10 +4,9 @@ import pymongo
 class MongoDb:
     '''Wrap MongoDB database access'''
 
-    def __init__(self, *args, **kwargs):
-        self.client = pymongo.MongoClient(*args, **kwargs)
-        self.database = self.client['stuff']
-        self.quotes = self.database['quotes']
+    def __init__(self, host, port, database):
+        self.client = pymongo.MongoClient(host, port)
+        self.quotes = self.client[database]['quotes']
 
     def max_sequence_id(self, channel):
         '''Gets the largest sequence id with the given channel, or 0'''

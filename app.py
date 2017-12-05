@@ -21,13 +21,13 @@ def main():
     source = os.path.basename(filename)
 
     if args.writer == 'mysql':
-        writer = MySqlDb(host='127.0.0.1', user='root', database='stuff')
+        writer = MySqlDb(host='127.0.0.1', user='root', database='quotes')
     elif args.writer == 'json':
-        writer = JsonFile('stuff.json')
+        writer = JsonFile('quotes.json')
     elif args.writer == 'mongo':
-        writer = MongoDb('localhost', 27017)
+        writer = MongoDb('localhost', 27017, 'quotes')
     else:
-        writer = SqliteDb('stuff.db')
+        writer = SqliteDb('quotes.db')
 
     writer.initialize()
     start_sequence_id = writer.max_sequence_id(channel) + 1
