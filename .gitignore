@@ -4,5 +4,5 @@ logs/
 import.sh
 *.pyc
 .cache/
-stuff.db
-stuff.json
+quotes.db
+quotes.json
