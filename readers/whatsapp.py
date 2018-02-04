@@ -13,7 +13,7 @@ class WhatsAppLogReader:
     - 1, 2 and 4 digit year
     - time with and without seconds
     - time units separated by colon or dot
-    - time and author separated by colon-space or space-dash-space
+    - time and author separated by colon-space, space-dash-space, or time enclosed in brackets
     Remember to check the length of the year and time when parsing!
     '''
     message_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (.*)$')
