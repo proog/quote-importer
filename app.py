@@ -18,6 +18,7 @@ def main():
     filename = args.filename
     utc_offset = args.utc_offset
     skip_lines = args.skip_lines
+    dry_run = args.dry_run
     source = os.path.basename(filename)
 
     if args.writer == 'mysql':
@@ -55,7 +56,8 @@ def main():
     print('Read %i system notices' % count(quotes, QuoteType.system))
     print('Read %i total' % len(quotes))
 
-    writer.insert_all(quotes)
+    if not dry_run:
+        writer.insert_all(quotes)
     writer.close()
 
 def count(quotes, quote_type):
@@ -70,6 +72,7 @@ def parse_args():
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
     parser.add_argument('--skip-lines', type=int, default=0)
+    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('type', choices=['irssi', 'whatsapp', 'nda'])
     parser.add_argument('channel')
     parser.add_argument('filename')
