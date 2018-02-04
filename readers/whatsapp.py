@@ -16,14 +16,14 @@ class WhatsAppLogReader:
     - time and author separated by colon-space or space-dash-space
     Remember to check the length of the year and time when parsing!
     '''
-    message_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+?): (.*)$')
+    message_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (.*)$')
 
-    subject_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$')
-    icon_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) (changed this group\'s icon)$')
-    join_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) .+ added (.+)$')
-    leave_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) left$')
-    kick_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+) removed (.+)$')
-    system_re = re.compile(r'^(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -) (.+)$')
+    subject_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$')
+    icon_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) (changed this group\'s icon)$')
+    join_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) .+ added (.+)$')
+    leave_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) left$')
+    kick_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) removed (.+)$')
+    system_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+)$')
 
     def __init__(self, channel, start_sequence_id, utc_offset, date_order, you, source='whatsapp'):
         self.channel = channel

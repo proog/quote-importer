@@ -59,12 +59,19 @@ def test_utc_offset(offset_hours, expected_utc_hour):
     quote = next(reader.read(lines))
     assert quote.timestamp.hour == expected_utc_hour
 
-@pytest.mark.parametrize('separator', [': ', ' - '])
-def test_time_author_separator(separator):
-    lines = io.StringIO('31/05/2017, 20:56:32%sCassie: what the fuck' % separator)
+@pytest.mark.parametrize('timestamp_str', [
+    '31/05/2017, 20:56:32: ',
+    '31/05/2017, 20:56:32 - ',
+    '[31/05/2017, 20.56.32] ',
+])
+def test_time_author_separator(timestamp_str):
+    lines = io.StringIO('%sCassie: what the fuck' % timestamp_str)
     reader = WhatsAppLogReader('', 0, 0, DateOrder.standard, '')
     quote = next(reader.read(lines))
 
+    assert quote.timestamp.year == 2017
+    assert quote.timestamp.month == 5
+    assert quote.timestamp.day == 31
     assert quote.timestamp.hour == 20
     assert quote.timestamp.minute == 56
     assert quote.timestamp.second == 32
