@@ -12,7 +12,7 @@ from models import QuoteType
 ])
 def test_utc_offset(offset_hours, expected_utc_hour):
     lines = io.StringIO('20:56 <&Cassie> what the fuck')
-    reader = IrssiLogReader('', 0, offset_hours, '')
+    reader = IrssiLogReader('', offset_hours, '')
     quote = next(reader.read(lines))
     assert quote.timestamp.hour == expected_utc_hour
 
@@ -27,7 +27,7 @@ def test_nick(nick):
 
 def test_you_nick():
     lines = io.StringIO('20:56 -!- You\'re now known as udo')
-    reader = IrssiLogReader('', 0, 0, 'Duo')
+    reader = IrssiLogReader('', 0, 'Duo')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.nick
     assert quote.author == 'Duo'
@@ -35,7 +35,7 @@ def test_you_nick():
 
 def test_join():
     lines = io.StringIO('20:56 -!- anyname [anyname!something] has joined #chan')
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.join
     assert quote.author == 'anyname'
@@ -43,7 +43,7 @@ def test_join():
 
 def test_leave():
     lines = io.StringIO('20:56 -!- anyname [anyname!something] has left #chan [bye]')
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.leave
     assert quote.author == 'anyname'
@@ -51,7 +51,7 @@ def test_leave():
 
 def test_kick():
     lines = io.StringIO('20:56 -!- anyname was kicked from #chan by ashin [fuck off]')
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.kick
     assert quote.author == 'ashin'
@@ -65,7 +65,7 @@ def test_kick():
 ])
 def test_ban(mode, message):
     lines = io.StringIO('20:56 -!- mode/#garachat [%s] by Ebichu' % mode)
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.ban
     assert quote.author == 'Ebichu'
@@ -77,7 +77,7 @@ def test_ban(mode, message):
 ])
 def test_message(raw, author, message):
     lines = io.StringIO(raw)
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.message
     assert quote.author == author
@@ -85,7 +85,7 @@ def test_message(raw, author, message):
 
 def test_message_glitch():
     lines = io.StringIO('20:56 20:56 <&Cassie> what the fuck<&Cassie> what the fuck')
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.message
     assert quote.author == '&Cassie'
@@ -95,7 +95,7 @@ def test_skip():
     lines = io.StringIO('20:56 <&Cassie> what the fuck\n' +
                         '20:56 -!- Duo is now known as udo\n' +
                         '20:58 <&ashin> also swear words')
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quotes = list(reader.read(lines, 2))
     assert len(quotes) == 1
     assert quotes[0].message == 'also swear words'
@@ -106,7 +106,7 @@ def test_skip():
 ])
 def test_me(raw, author, message):
     lines = io.StringIO(raw)
-    reader = IrssiLogReader('', 0, 0, '')
+    reader = IrssiLogReader('', 0, '')
     quote = next(reader.read(lines))
     assert quote.quote_type == QuoteType.message
     assert quote.author == author

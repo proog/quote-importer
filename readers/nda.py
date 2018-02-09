@@ -45,19 +45,18 @@ class NdaLogReader:
     ]
     ignored_re = re.compile('(' + ')|('.join(ignored) + ')')
 
-    def __init__(self, channel, start_sequence_id, you='nda', source='nda'):
+    def __init__(self, channel, you='nda', source='nda'):
         '''
         In this reader, the you parameter is only used as the initial value for nda's own nick,
         until it changes due to a line matched by nda_nick_re
         '''
         self.channel = channel
-        self.start_sequence_id = start_sequence_id
         self.you = you
         self.source = source
 
     def read(self, iterable, skip=0):
         '''Transform lines from iterable into quotes'''
-        sequence_id = self.start_sequence_id
+        sequence_id = 1
         nda_nick = self.you
         skipped = 0
 

@@ -46,16 +46,15 @@ class IrssiLogReader:
     '''Recognizable, but unspecific system messages with a timestamp and no author'''
     system_re = re.compile(r'^(\d{2}:\d{2}) -!- (.*)$')
 
-    def __init__(self, channel, start_sequence_id, utc_offset, you, source='irssi'):
+    def __init__(self, channel, utc_offset, you, source='irssi'):
         self.channel = channel
-        self.start_sequence_id = start_sequence_id
         self.tzinfo = timezone(timedelta(hours=utc_offset))
         self.you = you
         self.source = source
 
     def read(self, iterable, skip=0):
         '''Transform lines from iterable into quotes'''
-        sequence_id = self.start_sequence_id
+        sequence_id = 1
         date = datetime.utcfromtimestamp(0)
         skipped = 0
 

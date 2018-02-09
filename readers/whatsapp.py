@@ -25,9 +25,8 @@ class WhatsAppLogReader:
     kick_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) removed (.+)$')
     system_re = re.compile(r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+)$')
 
-    def __init__(self, channel, start_sequence_id, utc_offset, date_order, you, source='whatsapp'):
+    def __init__(self, channel, utc_offset, date_order, you, source='whatsapp'):
         self.channel = channel
-        self.start_sequence_id = start_sequence_id
         self.tzinfo = timezone(timedelta(hours=utc_offset))
         self.date_order = date_order
         self.you = you
@@ -35,7 +34,7 @@ class WhatsAppLogReader:
 
     def read(self, iterable, skip=0):
         '''Transform lines from iterable into quotes'''
-        sequence_id = self.start_sequence_id
+        sequence_id = 1
         current = None
         skipped = 0
 
