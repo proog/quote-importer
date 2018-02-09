@@ -13,10 +13,8 @@ from readers.nda import NdaLogReader
 def main():
     '''Entry point for the application'''
     args = parse_args()
-    log_type = args.type
     channel = args.channel
     filename = args.filename
-    utc_offset = args.utc_offset
     skip_lines = args.skip_lines
     dry_run = args.dry_run
     source = os.path.basename(filename)
@@ -32,19 +30,12 @@ def main():
 
     writer.initialize()
     start_sequence_id = writer.max_sequence_id(channel) + 1
+    reader = create_reader(args, source, start_sequence_id)
+
     print('Starting at sequence id %i for %s' % (start_sequence_id, channel))
 
     with open(filename, encoding='utf-8', errors='replace') as stream:
-        if log_type == 'irssi':
-            reader = IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
-            quotes = list(reader.read(stream, skip_lines))
-        elif log_type == 'whatsapp':
-            date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
-            reader = WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
-            quotes = list(reader.read(stream, skip_lines))
-        elif log_type == 'nda':
-            reader = NdaLogReader(channel, start_sequence_id, args.you, source)
-            quotes = list(reader.read(stream, skip_lines))
+        quotes = list(reader.read(stream, skip_lines))
 
     print('Read %i messages' % count(quotes, QuoteType.message))
     print('Read %i subject changes' % count(quotes, QuoteType.subject))
@@ -59,6 +50,22 @@ def main():
     if not dry_run:
         writer.insert_all(quotes)
     writer.close()
+
+def create_reader(args, source, start_sequence_id):
+    '''Creates an appropriate reader using the command line args and a start sequence id'''
+    log_type = args.type
+    channel = args.channel
+    utc_offset = args.utc_offset
+
+    if log_type == 'irssi':
+        return IrssiLogReader(channel, start_sequence_id, utc_offset, args.you, source)
+    elif log_type == 'whatsapp':
+        date_order = DateOrder.american if args.dates == 'american' else DateOrder.standard
+        return WhatsAppLogReader(channel, start_sequence_id, utc_offset, date_order, args.you, source)
+    elif log_type == 'nda':
+        return NdaLogReader(channel, start_sequence_id, args.you, source)
+
+    raise Exception('Invalid log type')
 
 def count(quotes, quote_type):
     '''Counts the number of quotes of a given type'''
