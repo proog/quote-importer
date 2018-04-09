@@ -6,6 +6,7 @@ from writers.mysqldb import MySqlDb
 from writers.sqlitedb import SqliteDb
 from writers.jsonfile import JsonFile
 from writers.mongodb import MongoDb
+from writers.dryrun import DryRun
 from readers.irssi import IrssiLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from readers.nda import NdaLogReader
@@ -16,7 +17,7 @@ def main():
     quotes = read_quotes(args)
     print_stats(quotes)
 
-    if not args.dry_run and len(quotes) > 0:
+    if len(quotes) > 0:
         write_quotes(args, quotes)
 
 def read_quotes(args):
@@ -44,8 +45,10 @@ def write_quotes(args, quotes):
         writer = JsonFile('quotes.json')
     elif args.writer == 'mongo':
         writer = MongoDb('localhost', 27017, 'quotes')
-    else:
+    elif args.writer == 'sqlite':
         writer = SqliteDb('quotes.db')
+    else:
+        writer = DryRun()
 
     writer.initialize()
 
@@ -81,12 +84,11 @@ def print_stats(quotes):
 def parse_args():
     '''Parse arguments from the command line'''
     parser = argparse.ArgumentParser()
-    parser.add_argument('--writer', choices=['sqlite', 'mysql', 'json', 'mongo'], default='sqlite')
+    parser.add_argument('--writer', choices=['sqlite', 'mysql', 'json', 'mongo', 'none'], default='none')
     parser.add_argument('--utc-offset', type=int, default=0)
     parser.add_argument('--dates', choices=['standard','american'], default='standard')
     parser.add_argument('--you', default='You')
     parser.add_argument('--skip-lines', type=int, default=0)
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('type', choices=['irssi', 'whatsapp', 'nda'])
     parser.add_argument('channel')
     parser.add_argument('filename')
