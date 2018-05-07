@@ -1,5 +1,6 @@
 .vscode/
 __pycache__/
+.pytest_cache/
 logs/
 import.sh
 *.pyc

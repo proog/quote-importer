@@ -32,11 +32,14 @@ then in the virtualenv shell, run something like
 
 ### Options
 
- - `--writer {sqlite, mysql, json, mongo, none}` (default: `none`, i.e. a no-op/dry run) Output format; credentials currently hardcoded in `app.py`
+ - `--writer {sqlite, mysql, json, mongo, none}` (default: `none`, i.e. a no-op/dry run) Output format; most credentials currently hardcoded in `app.py`
  - `--utc-offset [number]` (default: `0`) UTC offset in hours to assume when reading logs
  - `--you [string]` (default: `You`) irssi and WhatsApp refer to the author of the logs by "you", which is not helpful; this option substitutes "you" when reading logs
  - `--dates {standard,american}` (default: `standard`) Date format to assume when reading WhatsApp logs; WhatsApp uses either day/month/year (standard) or month/day/year (American) for its dates, depending on device
  - `--skip-lines [number]` (default: `0`) Skip processing lines of the file
+ - `--mysql-user [string]` (default: `root`) User if using the MySQL writer
+ - `--mysql-password [string]` (default: no password) Password if using the MySQL writer
+ - `--mysql-database [string]` (default: `quotes`) Database if using the MySQL writer
  
 ### Testing
 Run `pytest` in the virtualenv.
