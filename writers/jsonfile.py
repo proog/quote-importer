@@ -1,4 +1,5 @@
 """Read and write quotes to a JSON file"""
+import base64
 import json
 import os
 
@@ -29,16 +30,7 @@ class JsonFile:
             json_quotes = json.load(file)
 
         for quote in quotes:
-            json_quote = {
-                "channel": quote.channel,
-                "sequence_id": quote.sequence_id,
-                "author": quote.author,
-                "message": quote.message,
-                "timestamp": quote.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                "source": quote.source,
-                "type": quote.quote_type,
-                "raw": quote.raw,
-            }
+            json_quote = make_json(quote)
             json_quotes.append(json_quote)
 
         with open(self.filename, mode="w") as file:
@@ -56,3 +48,29 @@ class JsonFile:
 
     def close(self):
         pass
+
+
+def make_json(quote):
+    if quote.attachment is not None:
+        attachment_name = quote.attachment.name
+        attachment_content = (
+            base64.b64encode(quote.attachment.content).decode("utf-8")
+            if quote.attachment.content is not None
+            else None
+        )
+    else:
+        attachment_name = None
+        attachment_content = None
+
+    return {
+        "channel": quote.channel,
+        "sequence_id": quote.sequence_id,
+        "author": quote.author,
+        "message": quote.message,
+        "timestamp": quote.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "source": quote.source,
+        "type": quote.quote_type,
+        "raw": quote.raw,
+        "attachment_name": attachment_name,
+        "attachment": attachment_content,
+    }

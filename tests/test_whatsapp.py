@@ -1,4 +1,6 @@
 import io
+import os
+import shutil
 import pytest
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from models import QuoteType
@@ -208,3 +210,27 @@ def test_system():
         quote.message
         == "Messages you send to this group are now secured with end-to-end encryption. Tap for more info."
     )
+
+
+@pytest.mark.parametrize("filename", ["something.jpg", "something else.mp4"])
+def test_blob(filename):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_dir = os.path.join(current_dir, "test_files")
+    os.makedirs(file_dir, exist_ok=True)
+    content = bytes([0x1, 0x2, 0x3])
+
+    with open(os.path.join(file_dir, filename), "wb") as f:
+        f.write(content)
+
+    lines = io.StringIO(
+        "\u200e[26/07/2017, 15.11.24] Seth: \u200e<attached: %s>" % filename
+    )
+    reader = WhatsAppLogReader("", 0, DateOrder.standard, "", attachment_dir=file_dir)
+    quote = next(reader.read(lines))
+
+    shutil.rmtree(file_dir)
+
+    assert quote.quote_type == QuoteType.attachment
+    assert quote.message == "<attached: %s>" % filename
+    assert quote.attachment.name == filename
+    assert quote.attachment.content == content

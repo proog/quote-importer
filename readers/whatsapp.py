@@ -1,7 +1,8 @@
 """Read WhatsApp logs"""
 import re
+import os.path
 from datetime import datetime, timedelta, timezone
-from models import Quote, QuoteType
+from models import Quote, QuoteType, Attachment
 
 
 class WhatsAppLogReader:
@@ -21,6 +22,9 @@ class WhatsAppLogReader:
         r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (.*)$"
     )
 
+    attachment_re = re.compile(
+        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (<attached: (.+)>)$"
+    )
     subject_re = re.compile(
         r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$'
     )
@@ -40,12 +44,21 @@ class WhatsAppLogReader:
         r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+)$"
     )
 
-    def __init__(self, channel, utc_offset, date_order, you, source="whatsapp"):
+    def __init__(
+        self,
+        channel,
+        utc_offset,
+        date_order,
+        you,
+        source="whatsapp",
+        attachment_dir=None,
+    ):
         self.channel = channel
         self.tzinfo = timezone(timedelta(hours=utc_offset))
         self.date_order = date_order
         self.you = you
         self.source = source
+        self.attachment_dir = attachment_dir
 
     def read(self, iterable, skip=0):
         """Transform lines from iterable into quotes"""
@@ -54,10 +67,30 @@ class WhatsAppLogReader:
         skipped = 0
 
         for line in iterable:
-            line = line.rstrip("\r\n")
+            # whatsapp tends to add U+200E (left-to-right mark) chars at strange locations, but we don't care about those
+            line = line.rstrip("\r\n").replace("\u200e", "")
 
             if skipped < skip:
                 skipped += 1
+                continue
+
+            match = self.attachment_re.match(line)
+            if match is not None:
+                if current is not None:
+                    yield current
+
+                attachment = self.read_attachment(match[5])
+                current = self.start_quote(
+                    match[1],
+                    match[2],
+                    match[3],
+                    match[4],
+                    sequence_id,
+                    QuoteType.attachment,
+                    line,
+                    attachment,
+                )
+                sequence_id += 1
                 continue
 
             match = self.message_re.match(line)
@@ -178,7 +211,15 @@ class WhatsAppLogReader:
             yield current
 
     def start_quote(
-        self, date_str, time_str, author, message, sequence_id, quote_type, raw
+        self,
+        date_str,
+        time_str,
+        author,
+        message,
+        sequence_id,
+        quote_type,
+        raw,
+        attachment=None,
     ):
         """Make a quote from a line. Its message may not be finished on this line"""
         timestamp = self.parse_timestamp(date_str, time_str)
@@ -195,6 +236,7 @@ class WhatsAppLogReader:
             quote_type,
             self.source,
             raw,
+            attachment,
         )
 
     def parse_timestamp(self, date_part, time_part):
@@ -218,6 +260,17 @@ class WhatsAppLogReader:
             year, month, day, hours, minutes, seconds, tzinfo=self.tzinfo
         )
         return local_dt.astimezone(timezone.utc)
+
+    def read_attachment(self, filename):
+        """Read media attachments from files in the attachment directory"""
+        if self.attachment_dir is not None:
+            path = os.path.join(self.attachment_dir, filename)
+
+            if os.path.isfile(path):
+                with open(path, "rb") as f:
+                    return Attachment(filename, f.read())
+
+        return Attachment(filename, None)
 
 
 class DateOrder:

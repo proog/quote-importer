@@ -28,19 +28,7 @@ class MongoDb:
         count = 0
 
         for q_chunk in chunked_quotes:
-            data = (
-                {
-                    "channel": x.channel,
-                    "sequence_id": x.sequence_id,
-                    "author": x.author,
-                    "message": x.message,
-                    "timestamp": x.timestamp,
-                    "source": x.source,
-                    "quote_type": x.quote_type,
-                    "raw": x.raw,
-                }
-                for x in q_chunk
-            )
+            data = (make_bson(quote) for quote in q_chunk)
             self.quotes.insert_many(data)
             count += len(q_chunk)
             print("Inserted %i" % count)
@@ -61,3 +49,27 @@ def chunk(items, chunk_size):
     """Split items into n chunks"""
     for i in range(0, len(items), chunk_size):
         yield items[i : i + chunk_size]
+
+
+def make_bson(quote):
+    if quote.attachment is not None:
+        attachment_name = quote.attachment.name
+        attachment_description = "%i bytes" % (
+            len(quote.attachment.content) if quote.attachment.content is not None else 0
+        )
+    else:
+        attachment_name = None
+        attachment_description = None
+
+    return {
+        "channel": quote.channel,
+        "sequence_id": quote.sequence_id,
+        "author": quote.author,
+        "message": quote.message,
+        "timestamp": quote.timestamp,
+        "source": quote.source,
+        "type": quote.quote_type,
+        "raw": quote.raw,
+        "attachment_name": attachment_name,
+        "attachment": attachment_description,
+    }

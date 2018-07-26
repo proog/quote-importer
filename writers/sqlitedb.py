@@ -20,23 +20,11 @@ class SqliteDb:
     def insert_all(self, quotes):
         """Insert all given quotes"""
         sql = """INSERT INTO quotes
-            (author, channel, message, sequence_id, source, timestamp, type, raw)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
+            (author, channel, message, sequence_id, source, timestamp, type, raw, attachment_name, attachment)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
         cursor = self.cnx.cursor()
 
-        data = [
-            (
-                x.author,
-                x.channel,
-                x.message,
-                x.sequence_id,
-                x.source,
-                x.timestamp,
-                x.quote_type,
-                x.raw,
-            )
-            for x in quotes
-        ]
+        data = (make_row(quote) for quote in quotes)
         cursor.executemany(sql, data)
         print("Inserted %i" % len(quotes))
 
@@ -55,7 +43,9 @@ class SqliteDb:
                 `timestamp`	TEXT NOT NULL,
                 `source`	TEXT DEFAULT NULL,
                 `type`	TEXT NOT NULL,
-                `raw`	TEXT DEFAULT NULL
+                `raw`	TEXT DEFAULT NULL,
+                `attachment_name` TEXT DEFAULT NULL,
+                `attachment`  BLOB DEFAULT NULL
             )"""
         sql_index = """
             CREATE UNIQUE INDEX IF NOT EXISTS `IX_quotes_channel_sequence_id` ON `quotes` (
@@ -71,3 +61,18 @@ class SqliteDb:
     def close(self):
         """Close the database connection"""
         self.cnx.close()
+
+
+def make_row(quote):
+    return (
+        quote.author,
+        quote.channel,
+        quote.message,
+        quote.sequence_id,
+        quote.source,
+        quote.timestamp,
+        quote.quote_type,
+        quote.raw,
+        quote.attachment.name if quote.attachment is not None else None,
+        quote.attachment.content if quote.attachment is not None else None,
+    )

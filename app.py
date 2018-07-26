@@ -32,8 +32,9 @@ def read_quotes(args):
         date_order = (
             DateOrder.american if args.dates == "american" else DateOrder.standard
         )
+        attachment_dir = os.path.dirname(args.filename)
         reader = WhatsAppLogReader(
-            args.channel, args.utc_offset, date_order, args.you, source
+            args.channel, args.utc_offset, date_order, args.you, source, attachment_dir
         )
     elif args.type == "nda":
         reader = NdaLogReader(args.channel, args.you, source)
@@ -94,6 +95,7 @@ def print_stats(quotes):
     print("Read %i bans" % count(quotes, QuoteType.ban))
     print("Read %i nick changes" % count(quotes, QuoteType.nick))
     print("Read %i system notices" % count(quotes, QuoteType.system))
+    print("Read %i attachments" % count(quotes, QuoteType.attachment))
     print("Read %i total" % len(quotes))
 
 
