@@ -28,7 +28,7 @@ class MySqlDb:
             (author, channel, message, sequence_id, source, timestamp, type, raw, attachment_name, attachment)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         cursor = self.cnx.cursor()
-        chunked_quotes = chunk(quotes, 5000)
+        chunked_quotes = chunk(quotes, 2000)
         count = 0
 
         for q_chunk in chunked_quotes:
