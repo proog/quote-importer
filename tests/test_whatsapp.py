@@ -213,7 +213,7 @@ def test_system():
 
 
 @pytest.mark.parametrize("filename", ["something.jpg", "something else.mp4"])
-def test_blob(filename):
+def test_attachment(filename):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_dir = os.path.join(current_dir, "test_files")
     os.makedirs(file_dir, exist_ok=True)
@@ -234,3 +234,16 @@ def test_blob(filename):
     assert quote.message == "<attached: %s>" % filename
     assert quote.attachment.name == filename
     assert quote.attachment.content == content
+
+
+def test_attachment_without_attachment_dir():
+    lines = io.StringIO(
+        "\u200e[26/07/2017, 15.11.24] Seth: \u200e<attached: some file.jpg>"
+    )
+    reader = WhatsAppLogReader("", 0, DateOrder.standard, "", attachment_dir=None)
+    quote = next(reader.read(lines))
+
+    assert quote.quote_type == QuoteType.attachment
+    assert quote.message == "<attached: some file.jpg>"
+    assert quote.attachment.name == "some file.jpg"
+    assert quote.attachment.content == None

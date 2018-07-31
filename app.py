@@ -32,7 +32,7 @@ def read_quotes(args):
         date_order = (
             DateOrder.american if args.dates == "american" else DateOrder.standard
         )
-        attachment_dir = os.path.dirname(args.filename)
+        attachment_dir = None if args.no_attachments else os.path.dirname(args.filename)
         reader = WhatsAppLogReader(
             args.channel, args.utc_offset, date_order, args.you, source, attachment_dir
         )
@@ -109,6 +109,7 @@ def parse_args():
     parser.add_argument("--dates", choices=["standard", "american"], default="standard")
     parser.add_argument("--you", default="You")
     parser.add_argument("--skip-lines", type=int, default=0)
+    parser.add_argument("--no-attachments", action="store_true")
     parser.add_argument("--mysql-user", default="root")
     parser.add_argument("--mysql-password")
     parser.add_argument("--mysql-database", default="quotes")
