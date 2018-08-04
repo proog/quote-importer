@@ -16,6 +16,7 @@ WhatsApp media attachments (like images) are supported. Export your chat with th
 
 - SQLite
 - MySQL
+- PostgreSQL
 - MongoDB (without attachments due to document size constraints)
 - JSON file (slow)
 
@@ -44,9 +45,11 @@ then in the virtualenv shell, run something like
 - `--dates {standard,american}` (default: `standard`) Date format to assume when reading WhatsApp logs; WhatsApp uses either day/month/year (standard) or month/day/year (American) for its dates, depending on device
 - `--skip-lines [number]` (default: `0`) Skip processing lines of the file
 - `--no-attachments` (default: `false`, i.e. read attachments from the log file folder) Don't read WhatsApp media attachments; the messages will still be read
+- `--database [string]` (default: `quotes`) Database name if using the MySQL, PostgreSQL or MongoDB writers
 - `--mysql-user [string]` (default: `root`) User if using the MySQL writer
 - `--mysql-password [string]` (default: no password) Password if using the MySQL writer
-- `--mysql-database [string]` (default: `quotes`) Database if using the MySQL writer
+- `--postgres-user [string]` (default: `postgres`) User if using the PostgreSQL writer
+- `--postgres-password [string]` (default: no password) Password if using the PostgreSQL writer
 
 ### Testing
 
