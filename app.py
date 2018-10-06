@@ -9,6 +9,7 @@ from writers.mongodb import MongoDb
 from writers.postgresdb import PostgresDb
 from writers.dryrun import DryRun
 from readers.irssi import IrssiLogReader
+from readers.hexchat import HexChatLogReader
 from readers.whatsapp import WhatsAppLogReader, DateOrder
 from readers.nda import NdaLogReader
 
@@ -37,6 +38,8 @@ def read_quotes(args):
         reader = WhatsAppLogReader(
             args.channel, args.utc_offset, date_order, args.you, source, attachment_dir
         )
+    elif args.type == "hexchat":
+        reader = HexChatLogReader(args.channel, args.utc_offset, args.you, source)
     elif args.type == "nda":
         reader = NdaLogReader(args.channel, args.you, source)
     else:
@@ -125,7 +128,7 @@ def parse_args():
     parser.add_argument("--mysql-password")
     parser.add_argument("--postgres-user", default="postgres")
     parser.add_argument("--postgres-password")
-    parser.add_argument("type", choices=["irssi", "whatsapp", "nda"])
+    parser.add_argument("type", choices=["irssi", "whatsapp", "hexchat", "nda"])
     parser.add_argument("channel")
     parser.add_argument("filename")
     return parser.parse_args()
