@@ -1,6 +1,6 @@
 import io
-from app import shift
-from readers.irssi import IrssiLogReader
+from quoteimporter import shift
+from quoteimporter.readers.irssi import IrssiLogReader
 
 
 def test_shift():

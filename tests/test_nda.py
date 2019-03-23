@@ -1,7 +1,7 @@
 import io
 import pytest
-from readers.nda import NdaLogReader
-from models import QuoteType
+from quoteimporter.readers.nda import NdaLogReader
+from quoteimporter.models import QuoteType
 
 
 def test_message():
