@@ -1,7 +1,7 @@
 """Read HexChat logs"""
 import re
 from datetime import datetime, timezone, timedelta
-from models import Quote, QuoteType
+from quoteimporter.models import Quote, QuoteType
 
 
 class HexChatLogReader:

@@ -1,7 +1,7 @@
 import io
 import pytest
-from readers.irssi import IrssiLogReader
-from models import QuoteType
+from quoteimporter.readers.irssi import IrssiLogReader
+from quoteimporter.models import QuoteType
 
 
 @pytest.mark.parametrize(

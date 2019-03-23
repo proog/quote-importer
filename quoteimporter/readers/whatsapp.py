@@ -2,7 +2,7 @@
 import re
 import os.path
 from datetime import datetime, timedelta, timezone
-from models import Quote, QuoteType, Attachment
+from quoteimporter.models import Quote, QuoteType, Attachment
 
 
 class WhatsAppLogReader:

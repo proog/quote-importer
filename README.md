@@ -29,7 +29,7 @@ First install Python 3 and [pipenv](https://docs.pipenv.org/), then run
 
 then in the virtualenv shell, run something like
 
-    python app.py [OPTIONS] LOG_TYPE CHANNEL_NAME LOG_FILENAME
+    python -m quoteimporter [OPTIONS] LOG_TYPE CHANNEL_NAME LOG_FILENAME
 
 ### Arguments
 

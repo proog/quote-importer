@@ -1,27 +1,16 @@
 """Transform logs into structured data"""
-import argparse
 import os.path
-from models import QuoteType
-from writers.mysqldb import MySqlDb
-from writers.sqlitedb import SqliteDb
-from writers.jsonfile import JsonFile
-from writers.mongodb import MongoDb
-from writers.postgresdb import PostgresDb
-from writers.dryrun import DryRun
-from readers.irssi import IrssiLogReader
-from readers.hexchat import HexChatLogReader
-from readers.whatsapp import WhatsAppLogReader, DateOrder
-from readers.nda import NdaLogReader
-
-
-def main():
-    """Entry point for the application"""
-    args = parse_args()
-    quotes = read_quotes(args)
-    print_stats(quotes)
-
-    if len(quotes) > 0:
-        write_quotes(args, quotes)
+from .models import QuoteType
+from .writers.mysqldb import MySqlDb
+from .writers.sqlitedb import SqliteDb
+from .writers.jsonfile import JsonFile
+from .writers.mongodb import MongoDb
+from .writers.postgresdb import PostgresDb
+from .writers.dryrun import DryRun
+from .readers.irssi import IrssiLogReader
+from .readers.hexchat import HexChatLogReader
+from .readers.whatsapp import WhatsAppLogReader, DateOrder
+from .readers.nda import NdaLogReader
 
 
 def read_quotes(args):
@@ -108,31 +97,3 @@ def print_stats(quotes):
     print("Read %i system notices" % count(quotes, QuoteType.system))
     print("Read %i attachments" % count(quotes, QuoteType.attachment))
     print("Read %i total" % len(quotes))
-
-
-def parse_args():
-    """Parse arguments from the command line"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--writer",
-        choices=["sqlite", "mysql", "json", "mongo", "postgres", "none"],
-        default="none",
-    )
-    parser.add_argument("--utc-offset", type=int, default=0)
-    parser.add_argument("--dates", choices=["standard", "american"], default="standard")
-    parser.add_argument("--you", default="You")
-    parser.add_argument("--skip-lines", type=int, default=0)
-    parser.add_argument("--no-attachments", action="store_true")
-    parser.add_argument("--database", default="quotes")
-    parser.add_argument("--mysql-user", default="root")
-    parser.add_argument("--mysql-password")
-    parser.add_argument("--postgres-user", default="postgres")
-    parser.add_argument("--postgres-password")
-    parser.add_argument("type", choices=["irssi", "whatsapp", "hexchat", "nda"])
-    parser.add_argument("channel")
-    parser.add_argument("filename")
-    return parser.parse_args()
-
-
-if __name__ == "__main__":
-    main()

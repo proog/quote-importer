@@ -1,7 +1,7 @@
 import io
 import pytest
-from readers.hexchat import HexChatLogReader
-from models import QuoteType
+from quoteimporter.readers.hexchat import HexChatLogReader
+from quoteimporter.models import QuoteType
 
 
 @pytest.mark.parametrize("nick", ["Duo", "You", "you"])
