@@ -126,3 +126,19 @@ def test_utc_offset(offset_hours, expected_utc_hour):
     reader = HexChatLogReader("", offset_hours, "")
     quote = next(reader.read(lines))
     assert quote.timestamp.hour == expected_utc_hour
+
+
+@pytest.mark.parametrize(
+    "raw, author, message",
+    [
+        ("aug 23 14:13:43 *	&Cassie what the fuck", "&Cassie", "what the fuck"),
+        ("aug 23 14:13:43 *	 nda 22:03:08  <garamond>", " nda", "22:03:08  <garamond>"),
+    ],
+)
+def test_me(raw, author, message):
+    lines = io.StringIO(raw)
+    reader = HexChatLogReader("", 0, "")
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.message
+    assert quote.author == author
+    assert quote.message == message

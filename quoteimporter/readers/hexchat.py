@@ -23,7 +23,7 @@ class HexChatLogReader:
         r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) \(.+\) has joined .+$"
     )
     leave_re = re.compile(
-        r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) \(.+\) has left \S+(?: \(\"?(.*)\"?\))?$"
+        r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) \(.+\) has left \S+(?: \(\"?(.*?)\"?\))?$"
     )
     quit_re = re.compile(
         r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) has quit \((.*)\)$"
@@ -34,7 +34,7 @@ class HexChatLogReader:
     ban_re = re.compile(
         r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) sets ban on (\S+)!.+$"
     )
-    me_re = re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) (.*)$")
+    me_re = re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+?) (.*)$")
 
     """Misc system messages that resemble /me messages but are not"""
     system_res = [
@@ -258,7 +258,6 @@ class HexChatLogReader:
                     QuoteType.message,
                     line,
                 )
-                print(line)
                 sequence_id += 1
                 continue
 
