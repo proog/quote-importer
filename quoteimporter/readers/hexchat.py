@@ -14,10 +14,10 @@ class HexChatLogReader:
         r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) has changed the topic to: (.*)$"
     )
     log_open_re = re.compile(
-        r"^\*\*\*\* BEGIN LOGGING AT .{3} (\w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4})$"
+        r"^\*\*\*\* BEGIN LOGGING AT .{3} (\w{3} (\d| )?\d \d{2}:\d{2}:\d{2} \d{4})$"
     )
     log_close_re = re.compile(
-        r"^\*\*\*\* ENDING LOGGING AT .{3} (\w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4})$"
+        r"^\*\*\*\* ENDING LOGGING AT .{3} (\w{3} (\d| )?\d \d{2}:\d{2}:\d{2} \d{4})$"
     )
     join_re = re.compile(
         r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\t(.+) \(.+\) has joined .+$"
@@ -75,6 +75,16 @@ class HexChatLogReader:
         re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\tTopic for .+ is: .*$"),
         re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\tTopic for .+ set by .+$"),
         re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) \*\tDisconnected \(.+\).$"),
+        re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) >.+<\t.+.$"),  # sent dm
+        re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) Update Checker plugin unloaded$"),
+        re.compile(
+            r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) A HexChat update is available! You can download it from here:$"
+        ),
+        re.compile(r"^https://github.com/downloads/hexchat/.+$"),
+        re.compile(r"^http://dl.hexchat.(net|org)/.+$"),
+        re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) -Global-\t.+$"),
+        re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) -NickServ-\t.+$"),
+        re.compile(r"^(\w{3} \d{2} \d{2}:\d{2}:\d{2}) Update Checker\t.+$"),
     ]
 
     def __init__(self, channel, utc_offset, you, source="hexchat"):
