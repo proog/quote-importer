@@ -325,7 +325,6 @@ class HexChatLogReader:
         # hexchat doesn't mention date changes, so handle new year's eve by adjusting the year
         # this allows for inaccuracy of up to a day without permanently screwing up the year
         if utc.date() < self.current_date.date():
-            print("went from {0} to {1}".format(self.current_date, utc))
             utc = utc.replace(year=self.current_date.year + 1)
 
         return utc
