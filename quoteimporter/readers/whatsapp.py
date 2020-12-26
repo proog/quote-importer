@@ -1,8 +1,9 @@
 """Read WhatsApp logs"""
-import re
 import os.path
+import re
 from datetime import datetime, timedelta, timezone
-from quoteimporter.models import Quote, QuoteType, Attachment
+
+from quoteimporter.models import Attachment, Quote, QuoteType
 
 
 class WhatsAppLogReader:
@@ -25,6 +26,22 @@ class WhatsAppLogReader:
     attachment_re = re.compile(
         r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (<attached: (.+)>)$"
     )
+
+    """
+    At some point, likely in 2020, exporting chats "without media" causes media messages to be exported as e.g. "video omitted".
+    """
+    attachment_omitted_re = re.compile(
+        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): ((GIF|image|audio|video|sticker|Contact card|document) omitted)$"
+    )
+
+    """
+    For some omitted attachments, the filename and number of pages will be displayed as well.
+    In this case, we will attempt to read the attachment even though the log claims it was omitted.
+    """
+    named_attachment_omitted_re = re.compile(
+        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): ((.+?)( • \d+ pages)? document omitted)$"
+    )
+
     subject_re = re.compile(
         r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$'
     )
@@ -75,6 +92,42 @@ class WhatsAppLogReader:
                 continue
 
             match = self.attachment_re.match(line)
+            if match is not None:
+                if current is not None:
+                    yield current
+
+                attachment = self.read_attachment(match[5])
+                current = self.start_quote(
+                    match[1],
+                    match[2],
+                    match[3],
+                    match[4],
+                    sequence_id,
+                    QuoteType.attachment,
+                    line,
+                    attachment,
+                )
+                sequence_id += 1
+                continue
+
+            match = self.attachment_omitted_re.match(line)
+            if match is not None:
+                if current is not None:
+                    yield current
+
+                current = self.start_quote(
+                    match[1],
+                    match[2],
+                    match[3],
+                    match[4],
+                    sequence_id,
+                    QuoteType.attachment,
+                    line,
+                )
+                sequence_id += 1
+                continue
+
+            match = self.named_attachment_omitted_re.match(line)
             if match is not None:
                 if current is not None:
                     yield current

@@ -1,9 +1,10 @@
 import io
 import os
 import shutil
+
 import pytest
-from quoteimporter.readers.whatsapp import WhatsAppLogReader, DateOrder
 from quoteimporter.models import QuoteType
+from quoteimporter.readers.whatsapp import DateOrder, WhatsAppLogReader
 
 
 @pytest.mark.parametrize("day, expected", [("5", 5), ("05", 5), ("31", 31)])
@@ -246,4 +247,34 @@ def test_attachment_without_attachment_dir():
     assert quote.quote_type == QuoteType.attachment
     assert quote.message == "<attached: some file.jpg>"
     assert quote.attachment.name == "some file.jpg"
+    assert quote.attachment.content == None
+
+
+@pytest.mark.parametrize("message", ["image omitted", "video omitted"])
+def test_attachment_omitted(message):
+    lines = io.StringIO(f"\u200e[26/07/2017, 15.11.24] Seth: \u200e{message}")
+    reader = WhatsAppLogReader("", 0, DateOrder.standard, "")
+    quote = next(reader.read(lines))
+
+    assert quote.quote_type == QuoteType.attachment
+    assert quote.message == message
+    assert quote.attachment == None
+
+
+@pytest.mark.parametrize(
+    "message, filename",
+    [
+        ("Untitled document.pdf • 6 pages document omitted", "Untitled document.pdf"),
+        ("Untitled • 1234 pages document omitted", "Untitled"),
+        ("monkey fun.mp3 document omitted", "monkey fun.mp3"),
+    ],
+)
+def test_named_attachment_omitted(message, filename):
+    lines = io.StringIO(f"\u200e[26/07/2017, 15.11.24] Seth: \u200e{message}")
+    reader = WhatsAppLogReader("", 0, DateOrder.standard, "")
+    quote = next(reader.read(lines))
+
+    assert quote.quote_type == QuoteType.attachment
+    assert quote.message == message
+    assert quote.attachment.name == filename
     assert quote.attachment.content == None
