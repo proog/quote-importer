@@ -6,6 +6,20 @@ from quoteimporter.models import Attachment, Quote, QuoteType
 
 from .models import DateOrder
 
+"""
+Matches all combinations of:
+- 1 and 2 digit day of month
+- 1 and 2 digit month
+- 1, 2 and 4 digit year
+- time with and without seconds
+- time units separated by colon or dot
+- time and author separated by colon-space, space-dash-space, or time enclosed in brackets
+Remember to check the length of the year and time when parsing!
+"""
+TIMESTAMP_PATTERN = (
+    r"\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\])"
+)
+
 
 class MatchHandler:
     pattern: re.Pattern = None
@@ -96,20 +110,7 @@ class MatchHandler:
 
 
 class MessageMatchHandler(MatchHandler):
-    """
-    Matches all combinations of:
-    - 1 and 2 digit day of month
-    - 1 and 2 digit month
-    - 1, 2 and 4 digit year
-    - time with and without seconds
-    - time units separated by colon or dot
-    - time and author separated by colon-space, space-dash-space, or time enclosed in brackets
-    Remember to check the length of the year and time when parsing!
-    """
-
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (.*)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+?): (.*)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -125,9 +126,7 @@ class MessageMatchHandler(MatchHandler):
 
 
 class AttachmentMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): (<attached: (.+)>)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+?): (<attached: (.+)>)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -148,7 +147,7 @@ class AttachmentOmittedMatchHandler(MatchHandler):
     """At some point, likely in 2020, exporting chats "without media" causes media messages to be exported as e.g. "video omitted"."""
 
     pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): ((GIF|image|audio|video|sticker|Contact card|document) omitted)$"
+        fr"^{TIMESTAMP_PATTERN} (.+?): ((GIF|image|audio|video|sticker|Contact card|document) omitted)$"
     )
 
     def handle(self, line: str, sequence_id: int):
@@ -171,7 +170,7 @@ class NamedAttachmentOmittedMatchHandler(MatchHandler):
     """
 
     pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+?): ((.+?)( • \d+ pages)? document omitted)$"
+        fr"^{TIMESTAMP_PATTERN} (.+?): ((.+?)( • \d+ pages)? document omitted)$"
     )
 
     def handle(self, line: str, sequence_id: int):
@@ -191,7 +190,7 @@ class NamedAttachmentOmittedMatchHandler(MatchHandler):
 
 class SubjectMatchHandler(MatchHandler):
     pattern = re.compile(
-        r'^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$'
+        fr'^{TIMESTAMP_PATTERN} (.+) changed the subject from .* to (?:"|“)(.*)(?:"|”)$'
     )
 
     def handle(self, line: str, sequence_id: int):
@@ -208,9 +207,7 @@ class SubjectMatchHandler(MatchHandler):
 
 
 class IconMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) (changed this group\'s icon)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+) (changed this group\'s icon)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -226,9 +223,7 @@ class IconMatchHandler(MatchHandler):
 
 
 class JoinMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) .+ added (.+)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} .+ added (.+)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -238,9 +233,7 @@ class JoinMatchHandler(MatchHandler):
 
 
 class LeaveMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) left$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+) left$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -250,9 +243,7 @@ class LeaveMatchHandler(MatchHandler):
 
 
 class KickMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+) removed (.+)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+) removed (.+)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
@@ -268,9 +259,7 @@ class KickMatchHandler(MatchHandler):
 
 
 class SystemMatchHandler(MatchHandler):
-    pattern = re.compile(
-        r"^\[?(\d{1,2}\/\d{1,2}\/\d{1,4}), (\d{2}.\d{2}(?:.\d{2})?)(?::| -|\]) (.+)$"
-    )
+    pattern = re.compile(fr"^{TIMESTAMP_PATTERN} (.+)$")
 
     def handle(self, line: str, sequence_id: int):
         match = self.pattern.match(line)
