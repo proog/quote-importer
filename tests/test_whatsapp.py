@@ -4,7 +4,8 @@ import shutil
 
 import pytest
 from quoteimporter.models import QuoteType
-from quoteimporter.readers.whatsapp import DateOrder, WhatsAppLogReader
+from quoteimporter.readers.whatsapp.handlers import DateOrder
+from quoteimporter.readers.whatsapp.reader import WhatsAppLogReader
 
 
 @pytest.mark.parametrize("day, expected", [("5", 5), ("05", 5), ("31", 31)])

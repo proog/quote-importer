@@ -1,16 +1,18 @@
 """Transform logs into structured data"""
 import os.path
+
 from .models import QuoteType
-from .writers.mysqldb import MySqlDb
-from .writers.sqlitedb import SqliteDb
+from .readers.hexchat import HexChatLogReader
+from .readers.irssi import IrssiLogReader
+from .readers.nda import NdaLogReader
+from .readers.whatsapp.models import DateOrder
+from .readers.whatsapp.reader import WhatsAppLogReader
+from .writers.dryrun import DryRun
 from .writers.jsonfile import JsonFile
 from .writers.mongodb import MongoDb
+from .writers.mysqldb import MySqlDb
 from .writers.postgresdb import PostgresDb
-from .writers.dryrun import DryRun
-from .readers.irssi import IrssiLogReader
-from .readers.hexchat import HexChatLogReader
-from .readers.whatsapp import WhatsAppLogReader, DateOrder
-from .readers.nda import NdaLogReader
+from .writers.sqlitedb import SqliteDb
 
 
 def read_quotes(args):
