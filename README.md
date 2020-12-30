@@ -5,6 +5,7 @@ Parses chat logs into structured data.
 ## Supported log formats
 
 - irssi
+- HexChat
 - WhatsApp (iOS and Android exports)
 - [nda](https://github.com/proog/nda)
 
@@ -33,7 +34,7 @@ then in the virtualenv shell, run something like
 
 ### Arguments
 
-- `LOG_TYPE` Input format; can be `irssi`, `whatsapp` or `nda`
+- `LOG_TYPE` Input format; can be `irssi`, `hexchat`, `whatsapp` or `nda`
 - `CHANNEL_NAME` Channel or group name, e.g. `#mychannel`
 - `LOG_FILENAME` Path to the log file to read.
 
