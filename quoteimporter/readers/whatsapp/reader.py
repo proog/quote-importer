@@ -1,65 +1,23 @@
 """Read WhatsApp logs"""
-from datetime import timedelta, timezone
-
-from quoteimporter.models import Attachment, Quote, QuoteType
-
-from .handlers import (
-    AttachmentMatchHandler,
-    AttachmentOmittedMatchHandler,
-    IconMatchHandler,
-    JoinMatchHandler,
-    KickMatchHandler,
-    LeaveMatchHandler,
-    MessageMatchHandler,
-    NamedAttachmentOmittedMatchHandler,
-    SubjectMatchHandler,
-    SystemMatchHandler,
-)
+from .handlers import *
+from .models import WhatsAppOptions
 
 
 class WhatsAppLogReader:
     """Read a WhatsApp log file"""
 
-    def __init__(
-        self,
-        channel,
-        utc_offset,
-        date_order,
-        you,
-        source="whatsapp",
-        attachment_dir=None,
-    ):
+    def __init__(self, options: WhatsAppOptions):
         self.handlers = [
-            AttachmentMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            NamedAttachmentOmittedMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            AttachmentOmittedMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            MessageMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            SubjectMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            IconMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            JoinMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            LeaveMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            KickMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
-            SystemMatchHandler(
-                channel, utc_offset, date_order, you, source, attachment_dir
-            ),
+            AttachmentMatchHandler(options),
+            NamedAttachmentOmittedMatchHandler(options),
+            AttachmentOmittedMatchHandler(options),
+            MessageMatchHandler(options),
+            SubjectMatchHandler(options),
+            IconMatchHandler(options),
+            JoinMatchHandler(options),
+            LeaveMatchHandler(options),
+            KickMatchHandler(options),
+            SystemMatchHandler(options),
         ]
 
     def read(self, iterable, skip=0):

@@ -5,7 +5,7 @@ from .models import QuoteType
 from .readers.hexchat import HexChatLogReader
 from .readers.irssi import IrssiLogReader
 from .readers.nda import NdaLogReader
-from .readers.whatsapp.models import DateOrder
+from .readers.whatsapp.models import DateOrder, WhatsAppOptions
 from .readers.whatsapp.reader import WhatsAppLogReader
 from .writers.dryrun import DryRun
 from .writers.jsonfile import JsonFile
@@ -26,9 +26,10 @@ def read_quotes(args):
             DateOrder.american if args.dates == "american" else DateOrder.standard
         )
         attachment_dir = None if args.no_attachments else os.path.dirname(args.filename)
-        reader = WhatsAppLogReader(
+        options = WhatsAppOptions(
             args.channel, args.utc_offset, date_order, args.you, source, attachment_dir
         )
+        reader = WhatsAppLogReader(options)
     elif args.type == "hexchat":
         reader = HexChatLogReader(args.channel, args.utc_offset, args.you, source)
     elif args.type == "nda":

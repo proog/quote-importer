@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from quoteimporter.models import Attachment, Quote, QuoteType
 
-from .models import DateOrder
+from .models import DateOrder, WhatsAppOptions
 
 """
 Matches all combinations of:
@@ -24,21 +24,13 @@ TIMESTAMP_PATTERN = (
 class MatchHandler:
     pattern: re.Pattern = None
 
-    def __init__(
-        self,
-        channel,
-        utc_offset,
-        date_order,
-        you,
-        source="whatsapp",
-        attachment_dir=None,
-    ):
-        self.channel = channel
-        self.tzinfo = timezone(timedelta(hours=utc_offset))
-        self.date_order = date_order
-        self.you = you
-        self.source = source
-        self.attachment_dir = attachment_dir
+    def __init__(self, options: WhatsAppOptions):
+        self.channel = options.channel
+        self.tzinfo = timezone(timedelta(hours=options.utc_offset))
+        self.date_order = options.date_order
+        self.you = options.you
+        self.source = options.source
+        self.attachment_dir = options.attachment_dir
 
     def can_handle(self, line: str) -> bool:
         return self.pattern.match(line) is not None
