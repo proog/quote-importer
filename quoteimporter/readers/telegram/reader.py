@@ -5,8 +5,10 @@ from quoteimporter.models import Quote
 
 from .handlers import (
     AttachmentMessageHandler,
+    BaseHandler,
     GroupPhotoHandler,
     JoinHandler,
+    PinMessageHandler,
     TextMessageHandler,
 )
 from .models import TelegramOptions
@@ -16,11 +18,12 @@ class TelegramLogReader:
     """Read a Telegram JSON formatted export"""
 
     def __init__(self, options: TelegramOptions):
-        self.handlers = [
+        self.handlers: list[BaseHandler] = [
             TextMessageHandler(options),
             AttachmentMessageHandler(options),
             GroupPhotoHandler(options),
             JoinHandler(options),
+            PinMessageHandler(options),
         ]
 
     def read(self, json_stream, skip=0) -> Iterator[Quote]:
@@ -39,7 +42,7 @@ class TelegramLogReader:
                 if not handler.can_handle(message):
                     continue
 
-                yield handler.handle(message, sequence_id)
+                yield handler.handle(message, sequence_id, messages)
                 handled = True
                 break
 

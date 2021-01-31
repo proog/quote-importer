@@ -16,7 +16,9 @@ class BaseHandler:
     def can_handle(self, message: dict) -> bool:
         raise NotImplementedError
 
-    def handle(self, message: dict, sequence_id: int) -> Quote:
+    def handle(
+        self, message: dict, sequence_id: int, all_messages: list[dict]
+    ) -> Quote:
         raise NotImplementedError
 
     def parse_date(self, message: dict):
@@ -45,7 +47,7 @@ class TextMessageHandler(BaseHandler):
             and "poll" not in message
         )
 
-    def handle(self, message: dict, sequence_id: int):
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
         text = message["text"]
 
         # Telegram will batch several text types together in a list
@@ -76,7 +78,7 @@ class AttachmentMessageHandler(BaseHandler):
             "voice_message",
         ]
 
-    def handle(self, message: dict, sequence_id: int):
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
         media_type = message["media_type"]
         text = message["text"]
         attachment = None
@@ -104,7 +106,7 @@ class GroupPhotoHandler(BaseHandler):
     def can_handle(self, message: dict) -> bool:
         return message["type"] == "service" and message["action"] == "edit_group_photo"
 
-    def handle(self, message: dict, sequence_id: int):
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
         attachment = self.read_attachment(message["photo"])
 
         return Quote(
@@ -126,7 +128,7 @@ class JoinHandler(BaseHandler):
             message["type"] == "service" and message["action"] == "join_group_by_link"
         )
 
-    def handle(self, message: dict, sequence_id: int):
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
         return Quote(
             self.channel,
             sequence_id,
@@ -134,6 +136,31 @@ class JoinHandler(BaseHandler):
             message["action"],
             self.parse_date(message),
             QuoteType.join,
+            self.source,
+            json.dumps(message),
+        )
+
+
+class PinMessageHandler(BaseHandler):
+    def can_handle(self, message: dict) -> bool:
+        return message["type"] == "service" and message["action"] == "pin_message"
+
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
+        pinned_id = message["message_id"]
+        pinned_message = next((m for m in all_messages if m["id"] == pinned_id), None)
+        pinned_text = (
+            f"{pinned_message['from']}: {pinned_message['text']}"
+            if pinned_message
+            else ""
+        )
+
+        return Quote(
+            self.channel,
+            sequence_id,
+            message["actor"],
+            pinned_text,
+            self.parse_date(message),
+            QuoteType.subject,
             self.source,
             json.dumps(message),
         )

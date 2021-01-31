@@ -9,8 +9,10 @@ from quoteimporter.readers.telegram.models import TelegramOptions
 from quoteimporter.readers.telegram.reader import TelegramLogReader
 
 
-def format_json(message: dict):
-    return io.StringIO(json.dumps({"messages": [message]}))
+def format_json(messages):
+    return io.StringIO(
+        json.dumps({"messages": messages if isinstance(messages, list) else [messages]})
+    )
 
 
 @pytest.mark.parametrize(
@@ -162,3 +164,52 @@ def test_join():
     assert quote.quote_type == QuoteType.join
     assert quote.author == "Test Testy"
     assert quote.message == "join_group_by_link"
+
+
+@pytest.mark.parametrize(
+    "raws, author, message",
+    [
+        (
+            [
+                {
+                    "id": 1234,
+                    "type": "message",
+                    "date": "2021-01-08T07:10:07",
+                    "from": "Pinned Message Author",
+                    "text": "pinned message content",
+                },
+                {
+                    "id": 1235,
+                    "type": "service",
+                    "date": "2021-01-08T07:10:07",
+                    "action": "pin_message",
+                    "actor": "Pinned Message Pinner",
+                    "message_id": 1234,
+                },
+            ],
+            "Pinned Message Pinner",
+            "Pinned Message Author: pinned message content",
+        ),
+        (
+            [
+                {
+                    "id": 1235,
+                    "type": "service",
+                    "date": "2021-01-08T07:10:07",
+                    "action": "pin_message",
+                    "actor": "Pinned Message Pinner",
+                    "message_id": 1234,
+                },
+            ],
+            "Pinned Message Pinner",
+            "",
+        ),
+    ],
+)
+def test_pin_messaged(raws, author, message):
+    lines = format_json(raws)
+    reader = TelegramLogReader(TelegramOptions(""))
+    quote = list(reader.read(lines))[-1]
+    assert quote.quote_type == QuoteType.subject
+    assert quote.author == author
+    assert quote.message == message
