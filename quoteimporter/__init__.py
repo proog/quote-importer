@@ -5,6 +5,8 @@ from .models import QuoteType
 from .readers.hexchat import HexChatLogReader
 from .readers.irssi import IrssiLogReader
 from .readers.nda import NdaLogReader
+from .readers.telegram.models import TelegramOptions
+from .readers.telegram.reader import TelegramLogReader
 from .readers.whatsapp.models import DateOrder, WhatsAppOptions
 from .readers.whatsapp.reader import WhatsAppLogReader
 from .writers.dryrun import DryRun
@@ -34,6 +36,9 @@ def read_quotes(args):
         reader = HexChatLogReader(args.channel, args.utc_offset, args.you, source)
     elif args.type == "nda":
         reader = NdaLogReader(args.channel, args.you, source)
+    elif args.type == "telegram":
+        options = TelegramOptions(args.channel, source, os.path.dirname(args.filename))
+        reader = TelegramLogReader(options)
     else:
         raise Exception("Invalid log type")
 

@@ -1,4 +1,5 @@
 import argparse
+
 from . import print_stats, read_quotes, write_quotes
 
 
@@ -20,7 +21,9 @@ def parse_args():
     parser.add_argument("--mysql-password")
     parser.add_argument("--postgres-user", default="postgres")
     parser.add_argument("--postgres-password")
-    parser.add_argument("type", choices=["irssi", "whatsapp", "hexchat", "nda"])
+    parser.add_argument(
+        "type", choices=["irssi", "whatsapp", "hexchat", "nda", "telegram"]
+    )
     parser.add_argument("channel")
     parser.add_argument("filename")
     return parser.parse_args()
