@@ -46,11 +46,19 @@ class TextMessageHandler(BaseHandler):
         )
 
     def handle(self, message: dict, sequence_id: int):
+        text = message["text"]
+
+        # Telegram will batch several text types together in a list
+        if isinstance(text, list):
+            text = "".join(
+                [part if isinstance(part, str) else part["text"] for part in text]
+            )
+
         return Quote(
             self.channel,
             sequence_id,
             message["from"],
-            message["text"],
+            text,
             self.parse_date(message),
             QuoteType.message,
             self.source,
