@@ -1,5 +1,7 @@
 import io
 import json
+import os
+import shutil
 
 import pytest
 from quoteimporter.models import QuoteType
@@ -95,13 +97,52 @@ def test_message(raw, author, message):
             "",
             "RoadRovers.gif.mp4",
         ),
+        (
+            {
+                "type": "message",
+                "date": "2021-01-25T03:12:32",
+                "from": "Test Testy",
+                "file": "files/audio.mp3",
+                "media_type": "audio_file",
+                "text": "this one is 4 U Cass",
+            },
+            "Test Testy",
+            "this one is 4 U Cass",
+            "audio.mp3",
+        ),
+        (
+            {
+                "type": "message",
+                "date": "2021-01-25T03:12:32",
+                "from": "Test Testy",
+                "file": "voice_messages/voice.ogg",
+                "media_type": "voice_message",
+                "text": "this one is 4 U Cass",
+            },
+            "Test Testy",
+            "this one is 4 U Cass",
+            "voice.ogg",
+        ),
     ],
 )
 def test_attachment(raw, author, message, filename):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    export_dir = os.path.join(current_dir, "test_files")
+    file_dir = os.path.join(export_dir, os.path.dirname(raw["file"]))
+    content = bytes([0x1, 0x2, 0x3])
+
+    os.makedirs(file_dir, exist_ok=True)
+    with open(os.path.join(file_dir, filename), "wb") as f:
+        f.write(content)
+
     lines = format_json(raw)
-    reader = TelegramLogReader(TelegramOptions(""))
+    reader = TelegramLogReader(TelegramOptions("", export_dir=export_dir))
     quote = next(reader.read(lines))
+
+    shutil.rmtree(export_dir)
+
     assert quote.quote_type == QuoteType.attachment
     assert quote.author == author
     assert quote.message == message
     assert quote.attachment.name == filename
+    assert quote.attachment.content == content

@@ -72,6 +72,8 @@ class AttachmentMessageHandler(BaseHandler):
             "sticker",
             "animation",
             "video_file",
+            "audio_file",
+            "voice_message",
         ]
 
     def handle(self, message: dict, sequence_id: int):
@@ -82,7 +84,7 @@ class AttachmentMessageHandler(BaseHandler):
         if media_type == "sticker":
             text = message.get("sticker_emoji", text)
             attachment = self.read_attachment(message["file"])
-        elif media_type in ["animation", "video_file"]:
+        elif media_type in ["animation", "video_file", "audio_file", "voice_message"]:
             attachment = self.read_attachment(message["file"])
 
         return Quote(
