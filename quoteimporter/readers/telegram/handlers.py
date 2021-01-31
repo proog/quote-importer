@@ -100,19 +100,12 @@ class AttachmentMessageHandler(BaseHandler):
         )
 
 
-class SystemHandler(BaseHandler):
+class GroupPhotoHandler(BaseHandler):
     def can_handle(self, message: dict) -> bool:
-        return message["type"] == "service" and message["action"] in [
-            "edit_group_photo"
-        ]
+        return message["type"] == "service" and message["action"] == "edit_group_photo"
 
     def handle(self, message: dict, sequence_id: int):
-        action = message.get("action", None)
-
-        if action == "edit_group_photo":
-            attachment = self.read_attachment(message["photo"])
-        else:
-            attachment = None
+        attachment = self.read_attachment(message["photo"])
 
         return Quote(
             self.channel,
@@ -120,8 +113,27 @@ class SystemHandler(BaseHandler):
             message["actor"],
             message["action"],
             self.parse_date(message),
-            QuoteType.system,
+            QuoteType.subject,
             self.source,
             json.dumps(message),
             attachment,
+        )
+
+
+class JoinHandler(BaseHandler):
+    def can_handle(self, message: dict) -> bool:
+        return (
+            message["type"] == "service" and message["action"] == "join_group_by_link"
+        )
+
+    def handle(self, message: dict, sequence_id: int):
+        return Quote(
+            self.channel,
+            sequence_id,
+            message["actor"],
+            message["action"],
+            self.parse_date(message),
+            QuoteType.join,
+            self.source,
+            json.dumps(message),
         )

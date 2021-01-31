@@ -146,3 +146,19 @@ def test_attachment(raw, author, message, filename):
     assert quote.message == message
     assert quote.attachment.name == filename
     assert quote.attachment.content == content
+
+
+def test_join():
+    lines = format_json(
+        {
+            "type": "service",
+            "date": "2021-01-08T07:10:07",
+            "action": "join_group_by_link",
+            "actor": "Test Testy",
+        }
+    )
+    reader = TelegramLogReader(TelegramOptions(""))
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.join
+    assert quote.author == "Test Testy"
+    assert quote.message == "join_group_by_link"

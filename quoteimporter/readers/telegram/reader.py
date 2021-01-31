@@ -1,9 +1,14 @@
 import json
-from typing import Generator, Iterator
+from typing import Iterator
 
 from quoteimporter.models import Quote
 
-from .handlers import AttachmentMessageHandler, SystemHandler, TextMessageHandler
+from .handlers import (
+    AttachmentMessageHandler,
+    GroupPhotoHandler,
+    JoinHandler,
+    TextMessageHandler,
+)
 from .models import TelegramOptions
 
 
@@ -14,7 +19,8 @@ class TelegramLogReader:
         self.handlers = [
             TextMessageHandler(options),
             AttachmentMessageHandler(options),
-            SystemHandler(options),
+            GroupPhotoHandler(options),
+            JoinHandler(options),
         ]
 
     def read(self, json_stream, skip=0) -> Iterator[Quote]:
