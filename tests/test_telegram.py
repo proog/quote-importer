@@ -239,3 +239,20 @@ def test_poll():
     assert quote.quote_type == QuoteType.message
     assert quote.author == "Test Testy"
     assert quote.message == json.dumps(raw["poll"])
+
+
+def test_invite():
+    lines = format_json(
+        {
+            "type": "service",
+            "date": "2021-01-08T07:45:26",
+            "actor": "Test Testy",
+            "action": "invite_members",
+            "members": ["Someone else", "Someone else 2"],
+        }
+    )
+    reader = TelegramLogReader(TelegramOptions(""))
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.system
+    assert quote.author == "Test Testy"
+    assert quote.message == "Invited Someone else, Someone else 2"
