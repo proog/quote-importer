@@ -37,7 +37,8 @@ def read_quotes(args):
     elif args.type == "nda":
         reader = NdaLogReader(args.channel, args.you, source)
     elif args.type == "telegram":
-        options = TelegramOptions(args.channel, source, os.path.dirname(args.filename))
+        export_dir = None if args.no_attachments else os.path.dirname(args.filename)
+        options = TelegramOptions(args.channel, source, export_dir)
         reader = TelegramLogReader(options)
     else:
         raise Exception("Invalid log type")
