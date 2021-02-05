@@ -206,10 +206,36 @@ def test_join():
         ),
     ],
 )
-def test_pin_messaged(raws, author, message):
+def test_pin_message(raws, author, message):
     lines = format_json(raws)
     reader = TelegramLogReader(TelegramOptions(""))
     quote = list(reader.read(lines))[-1]
     assert quote.quote_type == QuoteType.subject
     assert quote.author == author
     assert quote.message == message
+
+
+def test_poll():
+    raw = {
+        "type": "message",
+        "date": "2021-01-08T08:31:12",
+        "from": "Test Testy",
+        "poll": {
+            "question": "is this cool",
+            "closed": False,
+            "total_voters": 3,
+            "answers": [
+                {"text": "yes", "voters": 0, "chosen": False},
+                {"text": "yes?", "voters": 0, "chosen": False},
+                {"text": "yes??", "voters": 0, "chosen": False},
+                {"text": "fuck the dodgers!!!", "voters": 0, "chosen": False},
+            ],
+        },
+        "text": "",
+    }
+    lines = format_json(raw)
+    reader = TelegramLogReader(TelegramOptions(""))
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.message
+    assert quote.author == "Test Testy"
+    assert quote.message == json.dumps(raw["poll"])

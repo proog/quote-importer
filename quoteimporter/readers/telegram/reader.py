@@ -9,6 +9,7 @@ from .handlers import (
     GroupPhotoHandler,
     JoinHandler,
     PinMessageHandler,
+    PollMessageHandler,
     TextMessageHandler,
 )
 from .models import TelegramOptions
@@ -21,6 +22,7 @@ class TelegramLogReader:
         self.handlers: list[BaseHandler] = [
             TextMessageHandler(options),
             AttachmentMessageHandler(options),
+            PollMessageHandler(options),
             GroupPhotoHandler(options),
             JoinHandler(options),
             PinMessageHandler(options),

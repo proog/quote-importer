@@ -105,6 +105,23 @@ class AttachmentMessageHandler(BaseHandler):
         )
 
 
+class PollMessageHandler(BaseHandler):
+    def can_handle(self, message: dict) -> bool:
+        return message["type"] == "message" and "poll" in message
+
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
+        return Quote(
+            self.channel,
+            sequence_id,
+            message["from"],
+            json.dumps(message["poll"]),
+            self.parse_date(message),
+            QuoteType.message,
+            self.source,
+            json.dumps(message),
+        )
+
+
 class GroupPhotoHandler(BaseHandler):
     def can_handle(self, message: dict) -> bool:
         return message["type"] == "service" and message["action"] == "edit_group_photo"
