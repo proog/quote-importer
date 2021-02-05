@@ -24,6 +24,17 @@ class BaseHandler:
     def parse_date(self, message: dict):
         return datetime.strptime(message["date"], "%Y-%m-%dT%H:%M:%S")
 
+    def join_text(self, message: dict) -> str:
+        """Telegram will batch several text types together in a list. This method joins them back together."""
+        text = message["text"]
+
+        if isinstance(text, list):
+            text = "".join(
+                [part if isinstance(part, str) else part["text"] for part in text]
+            )
+
+        return text
+
     def read_attachment(self, relative_path: str):
         """Read media attachments from files in the chat export directory"""
         filename = os.path.basename(relative_path)
@@ -48,19 +59,11 @@ class TextMessageHandler(BaseHandler):
         )
 
     def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
-        text = message["text"]
-
-        # Telegram will batch several text types together in a list
-        if isinstance(text, list):
-            text = "".join(
-                [part if isinstance(part, str) else part["text"] for part in text]
-            )
-
         return Quote(
             self.channel,
             sequence_id,
             message["from"],
-            text,
+            self.join_text(message),
             self.parse_date(message),
             QuoteType.message,
             self.source,
@@ -80,7 +83,7 @@ class AttachmentMessageHandler(BaseHandler):
 
     def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
         media_type = message["media_type"]
-        text = message["text"]
+        text = self.join_text(message)
         attachment = None
 
         if media_type == "sticker":
