@@ -7,11 +7,14 @@ Parses chat logs into structured data.
 - irssi
 - HexChat
 - WhatsApp (iOS and Android exports)
+- Telegram (JSON exports from Telegram Desktop)
 - [nda](https://github.com/proog/nda)
 
-### WhatsApp media
+### Media attachments
 
 WhatsApp media attachments (like images) are supported. Export your chat with the "attach media" option and quote-importer will attempt to read attachments from the same folder as the log file itself.
+
+Telegram media attachments are supported. Media will be read correctly if the directory structure that the export produces is left as-is.
 
 ## Supported storage systems
 
@@ -34,7 +37,7 @@ then in the virtualenv shell, run something like
 
 ### Arguments
 
-- `LOG_TYPE` Input format; can be `irssi`, `hexchat`, `whatsapp` or `nda`
+- `LOG_TYPE` Input format; can be `irssi`, `hexchat`, `whatsapp`, `telegram` or `nda`
 - `CHANNEL_NAME` Channel or group name, e.g. `#mychannel`
 - `LOG_FILENAME` Path to the log file to read.
 
@@ -45,7 +48,7 @@ then in the virtualenv shell, run something like
 - `--you [string]` (default: `You`) irssi and WhatsApp refer to the author of the logs by "you", which is not helpful; this option substitutes "you" when reading logs
 - `--dates {standard,american}` (default: `standard`) Date format to assume when reading WhatsApp logs; WhatsApp uses either day/month/year (standard) or month/day/year (American) for its dates, depending on device
 - `--skip-lines [number]` (default: `0`) Skip processing lines of the file
-- `--no-attachments` (default: `false`, i.e. read attachments from the log file folder) Don't read WhatsApp media attachments; the messages will still be read
+- `--no-attachments` (default: `false`, i.e. read attachments from the log file folder) Don't read WhatsApp/Telegram media attachments; the messages will still be read
 - `--database [string]` (default: `quotes`) Database name if using the MySQL, PostgreSQL or MongoDB writers
 - `--mysql-user [string]` (default: `root`) User if using the MySQL writer
 - `--mysql-password [string]` (default: no password) Password if using the MySQL writer
