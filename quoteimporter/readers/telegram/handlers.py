@@ -201,3 +201,23 @@ class PinMessageHandler(BaseHandler):
             self.source,
             json.dumps(message),
         )
+
+
+class GroupTitleHandler(BaseHandler):
+    def can_handle(self, message: dict) -> bool:
+        return message["type"] == "service" and message["action"] in [
+            "migrate_from_group",
+            "edit_group_title",
+        ]
+
+    def handle(self, message: dict, sequence_id: int, all_messages: list[dict]):
+        return Quote(
+            self.channel,
+            sequence_id,
+            message["actor"],
+            message["title"],
+            self.parse_date(message),
+            QuoteType.subject,
+            self.source,
+            json.dumps(message),
+        )

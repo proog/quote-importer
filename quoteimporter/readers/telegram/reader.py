@@ -7,6 +7,7 @@ from .handlers import (
     AttachmentMessageHandler,
     BaseHandler,
     GroupPhotoHandler,
+    GroupTitleHandler,
     InviteHandler,
     JoinHandler,
     PinMessageHandler,
@@ -28,6 +29,7 @@ class TelegramLogReader:
             JoinHandler(options),
             PinMessageHandler(options),
             InviteHandler(options),
+            GroupTitleHandler(options),
         ]
 
     def read(self, json_stream, skip=0) -> Iterator[Quote]:

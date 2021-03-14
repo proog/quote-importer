@@ -256,3 +256,24 @@ def test_invite():
     assert quote.quote_type == QuoteType.system
     assert quote.author == "Test Testy"
     assert quote.message == "Invited Someone else, Someone else 2"
+
+
+@pytest.mark.parametrize(
+    "action",
+    ["edit_group_title", "migrate_from_group"],
+)
+def test_subject(action):
+    lines = format_json(
+        {
+            "type": "service",
+            "date": "2021-01-08T07:45:26",
+            "actor": "Test Testy",
+            "action": action,
+            "title": "New title",
+        }
+    )
+    reader = TelegramLogReader(TelegramOptions(""))
+    quote = next(reader.read(lines))
+    assert quote.quote_type == QuoteType.subject
+    assert quote.author == "Test Testy"
+    assert quote.message == "New title"
